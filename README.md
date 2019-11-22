@@ -3,8 +3,8 @@ A mod that drastically improves FPS in My Summer Car
 
 On my PC
 
-CPU - Ryzen 7 1800X
-RAM - 16GB 2666Mhz
+CPU - Ryzen 7 1800X  
+RAM - 16GB 2666Mhz  
 
 I get about 25 FPS in my game once the satsuma is built.
 
