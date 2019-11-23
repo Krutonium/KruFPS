@@ -28,6 +28,8 @@ namespace KruFPS
         private List<GameObject> awayFromHouse;
         private List<GameObject> Cars;
         private Dictionary<string, Transform> objectCoords;
+
+        private static float DrawDistance;
         //private KeyValuePair<GameObject, Vector3> internalcars = new KeyValuePair<GameObject, Vector3>();
         public override void OnNewGame()
         {
@@ -88,7 +90,7 @@ namespace KruFPS
             // Figure out how to make repairs works at Fleetari's without loading it
             // Figure out how to trigger a restock at Tiemos on Thursdays without loading it.
 
-            Camera.main.farClipPlane = 420; //Helps with lower end GPU's. This specific value. Any others are wrong.
+            //Camera.main.farClipPlane = (int)RenderDistance.Value; //Helps with lower end GPU's. This specific value. Any others are wrong.
             PLAYER = GameObject.Find("PLAYER");
             YARD = GameObject.Find("YARD");                     //Used to find out how far the player is from the Object
             SATSUMA = GameObject.Find("SATSUMA(557kg, 248)");
@@ -96,6 +98,13 @@ namespace KruFPS
         }
         Settings Satsuma = new Settings("Satsuma", "Enable/Disable Satsuma", false);
         Settings OtherCars = new Settings("OtherCars", "Enable/Disable Other Player Vehicles", false);
+        static Settings RenderDistance = new Settings("slider", "Render Distance", 420, UpdateDrawDistance);
+
+        public static void UpdateDrawDistance()
+        {
+            DrawDistance = (float)RenderDistance.GetValue();
+        }
+
         public override void ModSettings()
         {
             // All settings should be created here. 
@@ -103,6 +112,7 @@ namespace KruFPS
             Settings.AddHeader(this, "Warning: Enabling these removes more lag but can break the game until you save and reload.");
             Settings.AddCheckBox(this, Satsuma);
             Settings.AddCheckBox(this, OtherCars);
+            Settings.AddSlider(this, RenderDistance, 0, 1000);
         }
 
         public override void OnSave()
@@ -123,6 +133,8 @@ namespace KruFPS
             {
 
                 //Code to run once every second assuming 60 FPS
+                Camera.main.farClipPlane = DrawDistance;
+                //ModConsole.Print(RenderDistance.GetValue());
                 foreach (var item in gameObjects)
                 {
                     EnableDisable(item, ShouldEnable(PLAYER.transform, item.transform));
@@ -192,26 +204,7 @@ namespace KruFPS
         {
             try
             {
-                bool initialstate = thing.activeSelf;
                 thing.SetActive(enabled);
-                if (enabled == true) //Object is active
-                {
-                    if (objectCoords.ContainsKey(thing.name) == false)
-                    {
-                        objectCoords.Add(thing.name, thing.transform); //Add Initially
-                    } else
-                    {
-                        if(thing.activeSelf == false)
-                        {
-                            thing.transform.position = objectCoords[thing.name].transform.position;
-                        } else
-                        {
-                            //Update coords
-                            objectCoords[thing.name] = thing.transform;
-                        }
-                    }
-                }
-                
             }
             catch { }
         }
