@@ -159,7 +159,7 @@ namespace KruFPS
             }
         }
 
-        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 10)
+        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 200)
         {
 
             //This determines if somthing should be enabled or not - Returning FALSE means that the object should be Disabled, and inversely
