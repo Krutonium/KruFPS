@@ -162,9 +162,10 @@ namespace KruFPS
         }
 
         int Frame = 0;
+        int ResetPeriod = 300;
         public override void Update()
         {
-            if (Frame == 60)
+            if (Frame == ResetPeriod)
             {
 
                 //Code to run once every second assuming 60 FPS
@@ -225,8 +226,12 @@ namespace KruFPS
                 }
             }
             Frame++;
-            if (Frame > 60)
+            if (Frame > ResetPeriod)
             {
+                if(ResetPeriod > 60)
+                {
+                    ResetPeriod = 60;
+                }
                 Frame = 0;
             }
         }
