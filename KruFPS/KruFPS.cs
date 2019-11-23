@@ -30,13 +30,13 @@ namespace KruFPS
         private GameObject JONNEZ;
         private GameObject KEKMET;
         private GameObject RUSKO;
-
+        private GameObject FERNDALE;
         private List<GameObject> gameObjects;
         private List<GameObject> awayFromHouse;
         //private List<GameObject> Cars;
         private Dictionary<string, Transform> objectCoords;
 
-        private static float DrawDistance;
+        private static float DrawDistance = 420;
         //private KeyValuePair<GameObject, Vector3> internalcars = new KeyValuePair<GameObject, Vector3>();
         public override void OnNewGame()
         {
@@ -64,8 +64,8 @@ namespace KruFPS
             JONNEZ = GameObject.Find("JONNEZ ES(Clone)");
             KEKMET = GameObject.Find("KEKMET(350-400psi)");
             RUSKO = GameObject.Find("RCO_RUSCKO12(270)");
-
-
+            FERNDALE = GameObject.Find("FERNDALE(1630kg)");
+            ModConsole.Print("Cars Done");
 
             //Locations and objects that can be enabled and disabled easily on proximity
             gameObjects.Add(GameObject.Find("BOAT")); //Boat is not a Car, oddly enough.
@@ -86,6 +86,8 @@ namespace KruFPS
             gameObjects.Add(GameObject.Find("TREES1_COLL"));
             gameObjects.Add(GameObject.Find("TREES2_COLL"));
             gameObjects.Add(GameObject.Find("TREES3_COLL"));
+
+            ModConsole.Print("GameObjects Done");
 
             //Things that should be enabled when out of proximity of the house
             awayFromHouse = new List<GameObject>();
@@ -111,7 +113,7 @@ namespace KruFPS
             YARD = GameObject.Find("YARD");                     //Used to find out how far the player is from the Object
             
             ModConsole.Print("[KruFPS] Found all objects");
-            DrawDistance = (float)RenderDistance.GetValue();
+            //DrawDistance = (float)RenderDistance.GetValue();
         }
 
         public static void UpdateDrawDistance()
@@ -120,6 +122,7 @@ namespace KruFPS
         }
         Settings Satsuma = new Settings("Satsuma", "Enable/Disable Satsuma", false);
         static Settings RenderDistance = new Settings("slider", "Render Distance", 420, UpdateDrawDistance);
+        Settings ferndale = new Settings("ferndale", "Ferndale", false);
         Settings flatbed = new Settings("flatbed", "Flatbed", false);
         Settings gifu = new Settings("gifu", "Gifu", false);
         Settings hayosiko = new Settings("hayosiko", "Hayosiko", false);
@@ -132,6 +135,7 @@ namespace KruFPS
             // DO NOT put anything else here that settings.
             Settings.AddHeader(this, "Warning: Enabling these removes more lag but can break the game until you save and reload.");
             Settings.AddCheckBox(this, Satsuma);
+            Settings.AddCheckBox(this, ferndale);
             Settings.AddCheckBox(this, flatbed);
             Settings.AddCheckBox(this, gifu);
             Settings.AddCheckBox(this, hayosiko);
@@ -139,7 +143,7 @@ namespace KruFPS
             Settings.AddCheckBox(this, kekmet);
             Settings.AddCheckBox(this, rusko);
 
-            Settings.AddSlider(this, RenderDistance, 0, 1000);
+            Settings.AddSlider(this, RenderDistance, 0, 6000);
 
         }
 
@@ -185,11 +189,19 @@ namespace KruFPS
                 }
                 if ((bool)jonnez.GetValue() == true)
                 {
-                    EnableDisable(KEKMET, ShouldEnable(PLAYER.transform, KEKMET.transform));
+                    EnableDisable(JONNEZ, ShouldEnable(PLAYER.transform, JONNEZ.transform));
                 }
                 if ((bool)rusko.GetValue() == true)
                 {
                     EnableDisable(RUSKO, ShouldEnable(PLAYER.transform, RUSKO.transform));
+                }
+                if((bool)ferndale.GetValue() == true)
+                {
+                    EnableDisable(FERNDALE, ShouldEnable(PLAYER.transform, FERNDALE.transform));
+                }
+                if((bool)kekmet.GetValue() == true)
+                {
+                    EnableDisable(KEKMET, ShouldEnable(PLAYER.transform, KEKMET.transform));
                 }
                 //Away from house
                 if (Distance(PLAYER.transform, YARD.transform) > 100) {
