@@ -167,7 +167,6 @@ namespace KruFPS
         {
             if (Frame == ResetPeriod)
             {
-
                 //Code to run once every second assuming 60 FPS
                 Camera.main.farClipPlane = DrawDistance;
                 //ModConsole.Print(RenderDistance.GetValue());
@@ -178,7 +177,15 @@ namespace KruFPS
                 //CARS
                 if ((bool)Satsuma.GetValue() == true) //Satsuma
                 {
-                    EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
+                    //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
+                    if(Distance(PLAYER.transform, SATSUMA.transform) > 5)
+                    {
+                        var Kinematic = SATSUMA.GetComponent<Rigidbody>();
+                        Kinematic.isKinematic = !ShouldEnable(PLAYER.transform, SATSUMA.transform, 5);
+                        Kinematic.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                        ModConsole.Print("Set Kinematics to " + !ShouldEnable(PLAYER.transform, SATSUMA.transform, 5));
+                        ModConsole.Print("The Car is " + Kinematic.isKinematic);
+                    }
                 }
                 if((bool)flatbed.GetValue() == true){
                     EnableDisable(FLATBED, ShouldEnable(PLAYER.transform, FLATBED.transform));
@@ -269,6 +276,7 @@ namespace KruFPS
         {
             try
             {
+                
                 thing.SetActive(enabled);
 
             }
