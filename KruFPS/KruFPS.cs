@@ -31,6 +31,7 @@ namespace KruFPS
         private GameObject KEKMET;
         private GameObject RUSKO;
         private GameObject FERNDALE;
+        private GameObject CABIN;
         private List<GameObject> gameObjects;
         private List<GameObject> awayFromHouse;
         //private List<GameObject> Cars;
@@ -65,11 +66,12 @@ namespace KruFPS
             KEKMET = GameObject.Find("KEKMET(350-400psi)");
             RUSKO = GameObject.Find("RCO_RUSCKO12(270)");
             FERNDALE = GameObject.Find("FERNDALE(1630kg)");
+            CABIN = GameObject.Find("CABIN");
             ModConsole.Print("Cars Done");
 
             //Locations and objects that can be enabled and disabled easily on proximity
             gameObjects.Add(GameObject.Find("BOAT")); //Boat is not a Car, oddly enough.
-            gameObjects.Add(GameObject.Find("CABIN"));
+            //gameObjects.Add(GameObject.Find("CABIN"));
             gameObjects.Add(GameObject.Find("COTTAGE"));
             gameObjects.Add(GameObject.Find("DANCEHALL"));
             gameObjects.Add(GameObject.Find("DRAGRACE"));
@@ -129,6 +131,7 @@ namespace KruFPS
         Settings jonnez = new Settings("jonnez", "Jonnez", false);
         Settings kekmet = new Settings("kekmet", "Kekmet", false);
         Settings rusko = new Settings("rusko", "Rusko", false);
+        Settings cabin = new Settings("cabin", "Unload the Cabin", false);
         public override void ModSettings()
         {
             // All settings should be created here. 
@@ -142,7 +145,7 @@ namespace KruFPS
             Settings.AddCheckBox(this, jonnez);
             Settings.AddCheckBox(this, kekmet);
             Settings.AddCheckBox(this, rusko);
-
+            Settings.AddCheckBox(this, cabin);
             Settings.AddSlider(this, RenderDistance, 0, 6000);
 
         }
@@ -202,6 +205,10 @@ namespace KruFPS
                 if((bool)kekmet.GetValue() == true)
                 {
                     EnableDisable(KEKMET, ShouldEnable(PLAYER.transform, KEKMET.transform));
+                }
+                if((bool)cabin.GetValue() == true)
+                {
+                    EnableDisable(CABIN, ShouldEnable(PLAYER.transform, CABIN.transform));
                 }
                 //Away from house
                 if (Distance(PLAYER.transform, YARD.transform) > 100) {
