@@ -24,9 +24,16 @@ namespace KruFPS
         private GameObject PLAYER;
         private GameObject YARD;
         private GameObject SATSUMA;
+        private GameObject FLATBED;
+        private GameObject GIFU;
+        private GameObject HAYOSIKO;
+        private GameObject JONNEZ;
+        private GameObject KEKMET;
+        private GameObject RUSKO;
+
         private List<GameObject> gameObjects;
         private List<GameObject> awayFromHouse;
-        private List<GameObject> Cars;
+        //private List<GameObject> Cars;
         private Dictionary<string, Transform> objectCoords;
 
         private static float DrawDistance;
@@ -40,16 +47,25 @@ namespace KruFPS
         {
             gameObjects = new List<GameObject>();
             objectCoords = new Dictionary<string, Transform>();
-            Cars = new List<GameObject>();
+            //Cars = new List<GameObject>();
             
             //Player Vehicles
-            Cars.Add(GameObject.Find("FERNDALE(1630kg)"));
-            Cars.Add(GameObject.Find("FLATBED"));
-            Cars.Add(GameObject.Find("GIFU(750/450psi)"));
-            Cars.Add(GameObject.Find("HAYOSIKO(1500kg, 250)"));
-            Cars.Add(GameObject.Find("JONNEZ ES(Clone)"));
-            Cars.Add(GameObject.Find("KEKMET(350-400psi)"));
-            Cars.Add(GameObject.Find("RCO_RUSCKO12(270)"));
+            //Cars.Add(GameObject.Find("FERNDALE(1630kg)"));
+            //Cars.Add(GameObject.Find("FLATBED"));
+            //Cars.Add(GameObject.Find("GIFU(750/450psi)"));
+            //Cars.Add(GameObject.Find("HAYOSIKO(1500kg, 250)"));
+            //Cars.Add(GameObject.Find("JONNEZ ES(Clone)"));
+            //Cars.Add(GameObject.Find("KEKMET(350-400psi)"));
+            //Cars.Add(GameObject.Find("RCO_RUSCKO12(270)"));
+            SATSUMA = GameObject.Find("SATSUMA(557kg, 248)");
+            FLATBED = GameObject.Find("FLATBED");
+            GIFU = GameObject.Find("GIFU(750/450psi)");
+            HAYOSIKO = GameObject.Find("HAYOSIKO(1500kg, 250)");
+            JONNEZ = GameObject.Find("JONNEZ ES(Clone)");
+            KEKMET = GameObject.Find("KEKMET(350-400psi)");
+            RUSKO = GameObject.Find("RCO_RUSCKO12(270)");
+
+
 
             //Locations and objects that can be enabled and disabled easily on proximity
             gameObjects.Add(GameObject.Find("BOAT")); //Boat is not a Car, oddly enough.
@@ -93,26 +109,38 @@ namespace KruFPS
             //Camera.main.farClipPlane = (int)RenderDistance.Value; //Helps with lower end GPU's. This specific value. Any others are wrong.
             PLAYER = GameObject.Find("PLAYER");
             YARD = GameObject.Find("YARD");                     //Used to find out how far the player is from the Object
-            SATSUMA = GameObject.Find("SATSUMA(557kg, 248)");
+            
             ModConsole.Print("[KruFPS] Found all objects");
+            DrawDistance = (float)RenderDistance.GetValue();
         }
-        Settings Satsuma = new Settings("Satsuma", "Enable/Disable Satsuma", false);
-        Settings OtherCars = new Settings("OtherCars", "Enable/Disable Other Player Vehicles", false);
-        static Settings RenderDistance = new Settings("slider", "Render Distance", 420, UpdateDrawDistance);
 
         public static void UpdateDrawDistance()
         {
             DrawDistance = (float)RenderDistance.GetValue();
         }
-
+        Settings Satsuma = new Settings("Satsuma", "Enable/Disable Satsuma", false);
+        static Settings RenderDistance = new Settings("slider", "Render Distance", 420, UpdateDrawDistance);
+        Settings flatbed = new Settings("flatbed", "Flatbed", false);
+        Settings gifu = new Settings("gifu", "Gifu", false);
+        Settings hayosiko = new Settings("hayosiko", "Hayosiko", false);
+        Settings jonnez = new Settings("jonnez", "Jonnez", false);
+        Settings kekmet = new Settings("kekmet", "Kekmet", false);
+        Settings rusko = new Settings("rusko", "Rusko", false);
         public override void ModSettings()
         {
             // All settings should be created here. 
             // DO NOT put anything else here that settings.
             Settings.AddHeader(this, "Warning: Enabling these removes more lag but can break the game until you save and reload.");
             Settings.AddCheckBox(this, Satsuma);
-            Settings.AddCheckBox(this, OtherCars);
+            Settings.AddCheckBox(this, flatbed);
+            Settings.AddCheckBox(this, gifu);
+            Settings.AddCheckBox(this, hayosiko);
+            Settings.AddCheckBox(this, jonnez);
+            Settings.AddCheckBox(this, kekmet);
+            Settings.AddCheckBox(this, rusko);
+
             Settings.AddSlider(this, RenderDistance, 0, 1000);
+
         }
 
         public override void OnSave()
@@ -139,18 +167,31 @@ namespace KruFPS
                 {
                     EnableDisable(item, ShouldEnable(PLAYER.transform, item.transform));
                 }
-                if ((bool)OtherCars.GetValue() == true) //OtherCars
-                {
-                    foreach(var car in Cars)
-                    {
-                        EnableDisable(car, ShouldEnable(PLAYER.transform, car.transform));
-                    }
-                }
+                //CARS
                 if ((bool)Satsuma.GetValue() == true) //Satsuma
                 {
                     EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
                 }
-    
+                if((bool)flatbed.GetValue() == true){
+                    EnableDisable(FLATBED, ShouldEnable(PLAYER.transform, FLATBED.transform));
+                }
+                if ((bool)gifu.GetValue() == true)
+                {
+                    EnableDisable(GIFU, ShouldEnable(PLAYER.transform, GIFU.transform));
+                }
+                if ((bool)hayosiko.GetValue() == true)
+                {
+                    EnableDisable(HAYOSIKO, ShouldEnable(PLAYER.transform, HAYOSIKO.transform));
+                }
+                if ((bool)jonnez.GetValue() == true)
+                {
+                    EnableDisable(KEKMET, ShouldEnable(PLAYER.transform, KEKMET.transform));
+                }
+                if ((bool)rusko.GetValue() == true)
+                {
+                    EnableDisable(RUSKO, ShouldEnable(PLAYER.transform, RUSKO.transform));
+                }
+                //Away from house
                 if (Distance(PLAYER.transform, YARD.transform) > 100) {
                     foreach(var item in awayFromHouse)
                     {
@@ -171,7 +212,7 @@ namespace KruFPS
             }
         }
 
-        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 200)
+        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 100)
         {
 
             //This determines if somthing should be enabled or not - Returning FALSE means that the object should be Disabled, and inversely
@@ -205,6 +246,7 @@ namespace KruFPS
             try
             {
                 thing.SetActive(enabled);
+
             }
             catch { }
         }
