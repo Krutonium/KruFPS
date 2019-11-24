@@ -32,6 +32,7 @@ namespace KruFPS
         private GameObject RUSKO;
         private GameObject FERNDALE;
         private GameObject CABIN;
+        private Rigidbody KINEMATIC;
         private List<GameObject> gameObjects;
         private List<GameObject> awayFromHouse;
         //private List<GameObject> Cars;
@@ -113,7 +114,7 @@ namespace KruFPS
             //Camera.main.farClipPlane = (int)RenderDistance.Value; //Helps with lower end GPU's. This specific value. Any others are wrong.
             PLAYER = GameObject.Find("PLAYER");
             YARD = GameObject.Find("YARD");                     //Used to find out how far the player is from the Object
-            
+            KINEMATIC = SATSUMA.GetComponent<Rigidbody>();
             ModConsole.Print("[KruFPS] Found all objects");
             //DrawDistance = (float)RenderDistance.GetValue();
         }
@@ -177,17 +178,18 @@ namespace KruFPS
                 //CARS
                 if ((bool)Satsuma.GetValue() == true) //Satsuma
                 {
-                    //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
-                    if(Distance(PLAYER.transform, SATSUMA.transform) > 5)
+                    if (Distance(PLAYER.transform, SATSUMA.transform) > 5)
                     {
-                        var Kinematic = SATSUMA.GetComponent<Rigidbody>();
-                        Kinematic.isKinematic = !ShouldEnable(PLAYER.transform, SATSUMA.transform, 5);
-                        Kinematic.collisionDetectionMode = CollisionDetectionMode.Discrete;
-                        ModConsole.Print("Set Kinematics to " + !ShouldEnable(PLAYER.transform, SATSUMA.transform, 5));
-                        ModConsole.Print("The Car is " + Kinematic.isKinematic);
+                        KINEMATIC.isKinematic = true;
                     }
+                    else
+                    {
+                        KINEMATIC.isKinematic = false;
+                    }
+                    // ^ Mild Performance Win
+                    //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
                 }
-                if((bool)flatbed.GetValue() == true){
+                if ((bool)flatbed.GetValue() == true){
                     EnableDisable(FLATBED, ShouldEnable(PLAYER.transform, FLATBED.transform));
                 }
                 if ((bool)gifu.GetValue() == true)
@@ -276,9 +278,7 @@ namespace KruFPS
         {
             try
             {
-                
                 thing.SetActive(enabled);
-
             }
             catch { }
         }
