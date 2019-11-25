@@ -23,14 +23,14 @@ namespace KruFPS
 
         private GameObject PLAYER;
         private GameObject YARD;
-        private GameObject SATSUMA;
-        private GameObject FLATBED;
-        private GameObject GIFU;
-        private GameObject HAYOSIKO;
-        private GameObject JONNEZ;
-        private GameObject KEKMET;
-        private GameObject RUSKO;
-        private GameObject FERNDALE;
+        private Vehicle SATSUMA;
+        private Vehicle FLATBED;
+        private Vehicle GIFU;
+        private Vehicle HAYOSIKO;
+        private Vehicle JONNEZ;
+        private Vehicle KEKMET;
+        private Vehicle RUSKO;
+        private Vehicle FERNDALE;
         private GameObject CABIN;
         private Rigidbody KINEMATIC;
         private List<GameObject> gameObjects;
@@ -58,7 +58,7 @@ namespace KruFPS
             gameObjects = new List<GameObject>();
             objectCoords = new Dictionary<string, Transform>();
             //Cars = new List<GameObject>();
-            
+
             //Player Vehicles
             //Cars.Add(GameObject.Find("FERNDALE(1630kg)"));
             //Cars.Add(GameObject.Find("FLATBED"));
@@ -67,14 +67,15 @@ namespace KruFPS
             //Cars.Add(GameObject.Find("JONNEZ ES(Clone)"));
             //Cars.Add(GameObject.Find("KEKMET(350-400psi)"));
             //Cars.Add(GameObject.Find("RCO_RUSCKO12(270)"));
-            SATSUMA = GameObject.Find("SATSUMA(557kg, 248)");
-            FLATBED = GameObject.Find("FLATBED");
-            GIFU = GameObject.Find("GIFU(750/450psi)");
-            HAYOSIKO = GameObject.Find("HAYOSIKO(1500kg, 250)");
-            JONNEZ = GameObject.Find("JONNEZ ES(Clone)");
-            KEKMET = GameObject.Find("KEKMET(350-400psi)");
-            RUSKO = GameObject.Find("RCO_RUSCKO12(270)");
-            FERNDALE = GameObject.Find("FERNDALE(1630kg)");
+            //SATSUMA = GameObject.Find("SATSUMA(557kg, 248)");
+            SATSUMA = new Vehicle("SATSUMA(557kg, 248)");
+            FLATBED = new Vehicle("FLATBED");
+            GIFU = new Vehicle("GIFU(750/450psi)");
+            HAYOSIKO = new Vehicle("HAYOSIKO(1500kg, 250)");
+            JONNEZ = new Vehicle("JONNEZ ES(Clone)");
+            KEKMET = new Vehicle("KEKMET(350-400psi)");
+            RUSKO = new Vehicle("RCO_RUSCKO12(270)");
+            FERNDALE = new Vehicle("FERNDALE(1630kg)");
             CABIN = GameObject.Find("CABIN");
             ModConsole.Print("Cars Done");
 
@@ -122,7 +123,7 @@ namespace KruFPS
             //Camera.main.farClipPlane = (int)RenderDistance.Value; //Helps with lower end GPU's. This specific value. Any others are wrong.
             PLAYER = GameObject.Find("PLAYER");
             YARD = GameObject.Find("YARD");                     //Used to find out how far the player is from the Object
-            KINEMATIC = SATSUMA.GetComponent<Rigidbody>();
+            KINEMATIC = SATSUMA.Object.GetComponent<Rigidbody>();
 
             // Get all minor objects from the game world (like beer cases, sausages)
             // Only items that are in the listOfMinorObjects list, and also contain "(itemx)" in their name will be loaded
@@ -185,13 +186,13 @@ namespace KruFPS
             {
                 EnableDisable(item, true); //ENABLE
             }
-            FERNDALE.SetActive(true);
-            FLATBED.SetActive(true);
-            GIFU.SetActive(true);
-            HAYOSIKO.SetActive(true);
-            JONNEZ.SetActive(true);
-            KEKMET.SetActive(true);
-            RUSKO.SetActive(true);
+            FERNDALE.EnableDisable(true);
+            FLATBED.EnableDisable(true);
+            GIFU.EnableDisable(true);
+            HAYOSIKO.EnableDisable(true);
+            JONNEZ.EnableDisable(true);
+            KEKMET.EnableDisable(true);
+            RUSKO.EnableDisable(true);
             CABIN.SetActive(true);
             KINEMATIC.isKinematic = true;
 
@@ -233,32 +234,33 @@ namespace KruFPS
                     // ^ Mild Performance Win
                     //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
                 }
-                if ((bool)flatbed.GetValue() == true){
-                    EnableDisable(FLATBED, ShouldEnable(PLAYER.transform, FLATBED.transform));
+                if ((bool)flatbed.GetValue() == true)
+                {
+                    FLATBED.EnableDisable(ShouldEnable(PLAYER.transform, FLATBED.transform));
                 }
                 if ((bool)gifu.GetValue() == true)
                 {
-                    EnableDisable(GIFU, ShouldEnable(PLAYER.transform, GIFU.transform));
+                    GIFU.EnableDisable(ShouldEnable(PLAYER.transform, GIFU.transform));
                 }
                 if ((bool)hayosiko.GetValue() == true)
                 {
-                    EnableDisable(HAYOSIKO, ShouldEnable(PLAYER.transform, HAYOSIKO.transform));
+                    HAYOSIKO.EnableDisable(ShouldEnable(PLAYER.transform, HAYOSIKO.transform));
                 }
                 if ((bool)jonnez.GetValue() == true)
                 {
-                    EnableDisable(JONNEZ, ShouldEnable(PLAYER.transform, JONNEZ.transform));
+                    JONNEZ.EnableDisable(ShouldEnable(PLAYER.transform, JONNEZ.transform));
                 }
                 if ((bool)rusko.GetValue() == true)
                 {
-                    EnableDisable(RUSKO, ShouldEnable(PLAYER.transform, RUSKO.transform));
+                    RUSKO.EnableDisable(ShouldEnable(PLAYER.transform, RUSKO.transform));
                 }
-                if((bool)ferndale.GetValue() == true)
+                if ((bool)ferndale.GetValue() == true)
                 {
-                    EnableDisable(FERNDALE, ShouldEnable(PLAYER.transform, FERNDALE.transform));
+                    FERNDALE.EnableDisable(ShouldEnable(PLAYER.transform, FERNDALE.transform));
                 }
-                if((bool)kekmet.GetValue() == true)
+                if ((bool)kekmet.GetValue() == true)
                 {
-                    EnableDisable(KEKMET, ShouldEnable(PLAYER.transform, KEKMET.transform));
+                    KEKMET.EnableDisable(ShouldEnable(PLAYER.transform, KEKMET.transform));
                 }
                 if((bool)cabin.GetValue() == true)
                 {
@@ -305,14 +307,7 @@ namespace KruFPS
             //ModConsole.Print(distance);
             try
             {
-                if (distance > distanceTarget) //100 to 200 Seems ideal
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
+                return distance < distanceTarget;
             }
             catch
             {
