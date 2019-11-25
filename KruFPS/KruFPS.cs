@@ -138,6 +138,7 @@ namespace KruFPS
             // All settings should be created here. 
             // DO NOT put anything else here that settings.
             Settings.AddHeader(this, "Warning: Enabling these removes more lag but can break the game until you save and reload.");
+            Settings.AddText(this, "Satsuma is undriveable, others lose engine sounds.");
             Settings.AddCheckBox(this, Satsuma);
             Settings.AddCheckBox(this, ferndale);
             Settings.AddCheckBox(this, flatbed);
@@ -146,8 +147,10 @@ namespace KruFPS
             Settings.AddCheckBox(this, jonnez);
             Settings.AddCheckBox(this, kekmet);
             Settings.AddCheckBox(this, rusko);
+            Settings.AddText(this, "Check this if you're not using it.");
             Settings.AddCheckBox(this, cabin);
-            Settings.AddSlider(this, RenderDistance, 0, 6000);
+            Settings.AddText(this, "Turn this down if you have a weak GPU.");
+            Settings.AddSlider(this, RenderDistance, 1, 6000);
 
         }
 
@@ -262,7 +265,7 @@ namespace KruFPS
             }
         }
 
-        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 100)
+        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 200)
         {
 
             //This determines if somthing should be enabled or not - Returning FALSE means that the object should be Disabled, and inversely
