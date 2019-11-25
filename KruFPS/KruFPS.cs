@@ -75,7 +75,7 @@ namespace KruFPS
             //gameObjects.Add(GameObject.Find("CABIN"));
             gameObjects.Add(GameObject.Find("COTTAGE"));
             gameObjects.Add(GameObject.Find("DANCEHALL"));
-            gameObjects.Add(GameObject.Find("DRAGRACE"));
+            //gameObjects.Add(GameObject.Find("DRAGRACE")); //Is broken when disabled, so leave enabled
             gameObjects.Add(GameObject.Find("INSPECTION"));
             gameObjects.Add(GameObject.Find("LANDFILL"));
             gameObjects.Add(GameObject.Find("PERAJARVI"));
