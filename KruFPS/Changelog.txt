@@ -1,0 +1,5 @@
+﻿v2:
+
+ - MOAR SETTINGS! (per car toggles)
+ - More FPS! (Probably!)
+ - Drag Race *should* work now.
