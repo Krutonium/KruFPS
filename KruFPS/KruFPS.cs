@@ -155,6 +155,23 @@ namespace KruFPS
         {
             // Called once, when save and quit
             // Serialize your save file here.
+            foreach (var item in awayFromHouse)
+            {
+                EnableDisable(item, true); //ENABLE
+            }
+            foreach(var item in gameObjects)
+            {
+                EnableDisable(item, true); //ENABLE
+            }
+            FERNDALE.SetActive(true);
+            FLATBED.SetActive(true);
+            GIFU.SetActive(true);
+            HAYOSIKO.SetActive(true);
+            JONNEZ.SetActive(true);
+            KEKMET.SetActive(true);
+            RUSKO.SetActive(true);
+            CABIN.SetActive(true);
+            KINEMATIC.isKinematic = true;
         }
 
         public override void OnGUI()
