@@ -38,6 +38,14 @@ namespace KruFPS
         //private List<GameObject> Cars;
         private Dictionary<string, Transform> objectCoords;
 
+        List<GameObject> minorObjects = new List<GameObject>(); 
+        // List of all whitelisted objects that can appear on the minorObjects list
+        // Note: batteries aren't included
+        string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", 
+        "empty plastic can", "fire extinguisher", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk", 
+        "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "potato chips", "sausages", "sugar", "spray can", 
+            "two stroke fuel", "wood carrier", "yeast" };
+
         private static float DrawDistance = 420;
         //private KeyValuePair<GameObject, Vector3> internalcars = new KeyValuePair<GameObject, Vector3>();
         public override void OnNewGame()
@@ -115,6 +123,15 @@ namespace KruFPS
             PLAYER = GameObject.Find("PLAYER");
             YARD = GameObject.Find("YARD");                     //Used to find out how far the player is from the Object
             KINEMATIC = SATSUMA.GetComponent<Rigidbody>();
+
+            // Get all minor objects from the game world (like beer cases, sausages)
+            // Only items that are in the listOfMinorObjects list, and also contain "(itemx)" in their name will be loaded
+            GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+            foreach (GameObject gameObject in allObjects)
+                foreach (string itemName in listOfMinorObjects)
+                    if (gameObject.name.Contains(itemName) && gameObject.name.Contains("(itemx)"))
+                        minorObjects.Add(gameObject);
+
             ModConsole.Print("[KruFPS] Found all objects");
             //DrawDistance = (float)RenderDistance.GetValue();
         }
@@ -133,6 +150,7 @@ namespace KruFPS
         Settings kekmet = new Settings("kekmet", "Kekmet", false);
         Settings rusko = new Settings("rusko", "Rusko", false);
         Settings cabin = new Settings("cabin", "Unload the Cabin", false);
+        Settings minorobjects = new Settings("minorObjects", "Minor objects (ex. beer cases, sausages...)", false);
         public override void ModSettings()
         {
             // All settings should be created here. 
@@ -147,6 +165,7 @@ namespace KruFPS
             Settings.AddCheckBox(this, jonnez);
             Settings.AddCheckBox(this, kekmet);
             Settings.AddCheckBox(this, rusko);
+            Settings.AddCheckBox(this, minorobjects);
             Settings.AddText(this, "Check this if you're not using it.");
             Settings.AddCheckBox(this, cabin);
             Settings.AddText(this, "Turn this down if you have a weak GPU.");
@@ -175,6 +194,11 @@ namespace KruFPS
             RUSKO.SetActive(true);
             CABIN.SetActive(true);
             KINEMATIC.isKinematic = true;
+
+            foreach (var item in minorObjects)
+            {
+                EnableDisable(item, true);
+            }
         }
 
         public override void OnGUI()
@@ -240,6 +264,12 @@ namespace KruFPS
                 {
                     EnableDisable(CABIN, ShouldEnable(PLAYER.transform, CABIN.transform));
                 }
+                if ((bool)minorobjects.GetValue() == true)
+                {
+                    foreach (GameObject obj in minorObjects)
+                        EnableDisable(obj, ShouldEnable(PLAYER.transform, obj.transform));
+                }
+
                 //Away from house
                 if (Distance(PLAYER.transform, YARD.transform) > 100) {
                     foreach(var item in awayFromHouse)
