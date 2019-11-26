@@ -65,7 +65,6 @@ namespace KruFPS
         public override void OnLoad()
         {
             gameObjects = new List<GameObject>();
-            objectCoords = new Dictionary<string, Transform>();
 
             //Player Vehicles
             // For each vehicle in the game, a new instance of Vehicle class is initialized.
