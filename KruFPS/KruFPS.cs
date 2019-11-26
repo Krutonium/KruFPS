@@ -15,7 +15,7 @@ namespace KruFPS
         public override string ID => "KruFPS"; //Your mod ID (unique)
         public override string Name => "KruFPS"; //You mod name
         public override string Author => "Krutonium"; //Your Username
-        public override string Version => "1.0"; //Version
+        public override string Version => "3.0"; //Version
 
         // Set this to true if you will be load custom assets from Assets folder.
         // This will create subfolder in Assets folder for your mod.
