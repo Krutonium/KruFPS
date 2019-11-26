@@ -44,8 +44,8 @@ namespace KruFPS
         // List of all whitelisted objects that can appear on the minorObjects list
         // Note: batteries aren't included
         string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", 
-        "empty plastic can", "fire extinguisher", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk", 
-        "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "potato chips", "sausages", "sugar", "spray can", 
+        "diesel", "empty plastic can", "fire extinguisher", "gasoline", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk", 
+        "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "potato chips", "sausages", "shopping bag", "sugar", "spray can", 
             "two stroke fuel", "wood carrier", "yeast" };
 
         private static float DrawDistance = 420;
@@ -161,7 +161,7 @@ namespace KruFPS
             // All settings should be created here. 
             // DO NOT put anything else here that settings.
             Settings.AddHeader(this, "Warning: Enabling these removes more lag but can break the game until you save and reload.");
-            Settings.AddText(this, "Satsuma is undriveable, others lose engine sounds.");
+            Settings.AddText(this, "The Satsuma has parts disabled, the others are completely disabled.");
             Settings.AddCheckBox(this, Satsuma);
             Settings.AddCheckBox(this, ferndale);
             Settings.AddCheckBox(this, flatbed);
@@ -171,7 +171,7 @@ namespace KruFPS
             Settings.AddCheckBox(this, kekmet);
             Settings.AddCheckBox(this, rusko);
             Settings.AddCheckBox(this, minorobjects);
-            Settings.AddText(this, "Check this if you're not using it.");
+            Settings.AddText(this, "Check this if you're not using the cabin.");
             Settings.AddCheckBox(this, cabin);
             Settings.AddText(this, "Turn this down if you have a weak GPU.");
             Settings.AddSlider(this, RenderDistance, 1, 6000);
@@ -305,7 +305,7 @@ namespace KruFPS
             }
         }
 
-        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 10)
+        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 200)
         {
 
             //This determines if somthing should be enabled or not - Returning FALSE means that the object should be Disabled, and inversely
