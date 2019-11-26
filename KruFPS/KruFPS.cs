@@ -50,11 +50,7 @@ namespace KruFPS
         List<GameObject> farGameObjects = new List<GameObject>();
 
         private static float DrawDistance = 420;
-        //private KeyValuePair<GameObject, Vector3> internalcars = new KeyValuePair<GameObject, Vector3>();
-        public override void OnNewGame()
-        {
-            // Called once, when starting a New Game, you can reset your saves here
-        }
+
 
         public override void OnLoad()
         {
@@ -163,7 +159,7 @@ namespace KruFPS
             // Get all minor objects from the game world (like beer cases, sausages)
             // Only items that are in the listOfMinorObjects list, and also contain "(itemx)" in their name will be loaded
             // UPDATED: added support for (Clone) items
-            GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+            GameObject[] allObjects = Object.FindObjectsOfType<GameObject>();
             foreach (GameObject gameObject in allObjects)
                 foreach (string itemName in listOfMinorObjects)
                     if (gameObject.name.Contains(itemName) && gameObject.name.ContainsAny("(itemx)", "(Clone)"))
@@ -177,7 +173,7 @@ namespace KruFPS
         {
             DrawDistance = (float)RenderDistance.GetValue();
         }
-        Settings Satsuma = new Settings("Satsuma", "Enable/Disable Satsuma", false);
+        Settings Satsuma = new Settings("Satsuma", "Satsuma (only parts disabled)", false);
         static Settings RenderDistance = new Settings("slider", "Render Distance", 420, UpdateDrawDistance);
         Settings ferndale = new Settings("ferndale", "Ferndale", false);
         Settings flatbed = new Settings("flatbed", "Flatbed", false);
@@ -194,8 +190,9 @@ namespace KruFPS
         {
             // All settings should be created here. 
             // DO NOT put anything else here that settings.
-            Settings.AddHeader(this, "Warning: Enabling these removes more lag but can break the game until you save and reload.");
-            Settings.AddText(this, "The Satsuma has parts disabled, the others are completely disabled.");
+            Settings.AddHeader(this, "Performance settings", new Color32(0, 128, 0, 255));
+            Settings.AddText(this, "<color=orange><b>Warning: Enabling these removes more lag but can break the game until you save and reload.</b></color>");
+            //Settings.AddText(this, "The Satsuma has parts disabled, the others are completely disabled.");
             Settings.AddCheckBox(this, Satsuma);
             Settings.AddCheckBox(this, ferndale);
             Settings.AddCheckBox(this, flatbed);
@@ -207,9 +204,9 @@ namespace KruFPS
             Settings.AddCheckBox(this, minorobjects);
             Settings.AddCheckBox(this, teimoshop);
             Settings.AddCheckBox(this, fleetarirepairshop);
-            Settings.AddText(this, "Check this if you're not using it.");
             Settings.AddText(this, "Check this if you're not using the cabin.");
             Settings.AddCheckBox(this, cabin);
+            Settings.AddHeader(this, "Graphics settings", Color.green);
             Settings.AddText(this, "Turn this down if you have a weak GPU.");
             Settings.AddSlider(this, RenderDistance, 1, 6000);
 
@@ -250,117 +247,111 @@ namespace KruFPS
         {
             // Draw unity OnGUI() here
         }
-
-        int Frame = 0;
-        int ResetPeriod = 300;
+        float timer = 0.0f;
         public override void Update()
         {
-            if (Frame == ResetPeriod)
+            timer += Time.deltaTime;
+            float seconds = (timer % 60);
+            if (seconds <= 1f) return; 
+            //return if one second didn't pass. 
+
+            //if we are here, one second passed so reset timer and do rest of the code.
+            timer = 0f;
+
+
+            Camera.main.farClipPlane = DrawDistance;
+
+            for (int i = 0; i < gameObjects.Count; i++)
             {
-                //Code to run once every second assuming 60 FPS
-                Camera.main.farClipPlane = DrawDistance;
-                //ModConsole.Print(RenderDistance.GetValue());
-                foreach (var item in gameObjects)
-                {
-                    EnableDisable(item, ShouldEnable(PLAYER.transform, item.transform));
-                }
+                EnableDisable(gameObjects[i], ShouldEnable(PLAYER.transform, gameObjects[i].transform));
+            }
 
-                // Objects that are larger and need to enabled earlier
-                foreach (var item in farGameObjects)
-                {
-                    EnableDisable(item, ShouldEnable(PLAYER.transform, item.transform, 400));
-                }
+            // Objects that are larger and need to enabled earlier
+            for (int i = 0; i < farGameObjects.Count; i++)
+            {
+                EnableDisable(farGameObjects[i], ShouldEnable(PLAYER.transform, farGameObjects[i].transform, 400));
+            }
 
-                //CARS
-                if ((bool)Satsuma.GetValue() == true) //Satsuma
+            //CARS
+            if ((bool)Satsuma.GetValue() == true) //Satsuma
+            {
+                if (Distance(PLAYER.transform, SATSUMA.transform) > 5)
                 {
-                    if (Distance(PLAYER.transform, SATSUMA.transform) > 5)
-                    {
-                        KINEMATIC.isKinematic = true;
-                        AXLES.enabled = true;
-                        CAR_DYNAMICS.enabled = true;
-                    }
-                    else
-                    {
-                        KINEMATIC.isKinematic = false;
-                        AXLES.enabled = false;
-                        CAR_DYNAMICS.enabled = false;
-                    }
-                    // ^ Mild Performance Win
-                    //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
-                }
-                if ((bool)flatbed.GetValue() == true)
-                {
-                    FLATBED.EnableDisable(ShouldEnable(PLAYER.transform, FLATBED.transform));
-                }
-                if ((bool)gifu.GetValue() == true)
-                {
-                    GIFU.EnableDisable(ShouldEnable(PLAYER.transform, GIFU.transform));
-                }
-                if ((bool)hayosiko.GetValue() == true)
-                {
-                    HAYOSIKO.EnableDisable(ShouldEnable(PLAYER.transform, HAYOSIKO.transform));
-                }
-                if ((bool)jonnez.GetValue() == true)
-                {
-                    JONNEZ.EnableDisable(ShouldEnable(PLAYER.transform, JONNEZ.transform));
-                }
-                if ((bool)rusko.GetValue() == true)
-                {
-                    RUSKO.EnableDisable(ShouldEnable(PLAYER.transform, RUSKO.transform));
-                }
-                if ((bool)ferndale.GetValue() == true)
-                {
-                    FERNDALE.EnableDisable(ShouldEnable(PLAYER.transform, FERNDALE.transform));
-                }
-                if ((bool)kekmet.GetValue() == true)
-                {
-                    KEKMET.EnableDisable(ShouldEnable(PLAYER.transform, KEKMET.transform));
-                }
-                if ((bool)cabin.GetValue() == true)
-                {
-                    EnableDisable(CABIN, ShouldEnable(PLAYER.transform, CABIN.transform));
-                }
-                if ((bool)minorobjects.GetValue() == true)
-                {
-                    for (int i = 0; i < minorObjects.Count; i++)
-                    {
-                        EnableDisable(minorObjects[i], ShouldEnable(PLAYER.transform, minorObjects[i].transform));
-                    }
-                }
-                if ((bool)teimoshop.GetValue() == true)
-                {
-                    STORE.EnableDisable(ShouldEnable(PLAYER.transform, STORE.transform));
-                }
-                if ((bool)fleetarirepairshop.GetValue() == true)
-                {
-                    REPAIRSHOP.EnableDisable(ShouldEnable(PLAYER.transform, REPAIRSHOP.transform));
-                }
-
-                //Away from house
-                if (Distance(PLAYER.transform, YARD.transform) > 100)
-                {
-                    for (int i = 0; i < awayFromHouse.Count; i++)
-                    {
-                        EnableDisable(awayFromHouse[i], true);
-                    }
+                    KINEMATIC.isKinematic = true;
+                    AXLES.enabled = true;
+                    CAR_DYNAMICS.enabled = true;
                 }
                 else
                 {
-                    for (int i = 0; i < awayFromHouse.Count; i++)
-                    {
-                        EnableDisable(awayFromHouse[i], false);
-                    }
+                    KINEMATIC.isKinematic = false;
+                    AXLES.enabled = false;
+                    CAR_DYNAMICS.enabled = false;
+                }
+                // ^ Mild Performance Win
+                //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
+            }
+            if ((bool)flatbed.GetValue() == true)
+            {
+                FLATBED.EnableDisable(ShouldEnable(PLAYER.transform, FLATBED.transform));
+            }
+            if ((bool)gifu.GetValue() == true)
+            {
+                GIFU.EnableDisable(ShouldEnable(PLAYER.transform, GIFU.transform));
+            }
+            if ((bool)hayosiko.GetValue() == true)
+            {
+                HAYOSIKO.EnableDisable(ShouldEnable(PLAYER.transform, HAYOSIKO.transform));
+            }
+            if ((bool)jonnez.GetValue() == true)
+            {
+                JONNEZ.EnableDisable(ShouldEnable(PLAYER.transform, JONNEZ.transform));
+            }
+            if ((bool)rusko.GetValue() == true)
+            {
+                RUSKO.EnableDisable(ShouldEnable(PLAYER.transform, RUSKO.transform));
+            }
+            if ((bool)ferndale.GetValue() == true)
+            {
+                FERNDALE.EnableDisable(ShouldEnable(PLAYER.transform, FERNDALE.transform));
+            }
+            if ((bool)kekmet.GetValue() == true)
+            {
+                KEKMET.EnableDisable(ShouldEnable(PLAYER.transform, KEKMET.transform));
+            }
+            if ((bool)cabin.GetValue() == true)
+            {
+                EnableDisable(CABIN, ShouldEnable(PLAYER.transform, CABIN.transform));
+            }
+            if ((bool)minorobjects.GetValue() == true)
+            {
+                for (int i = 0; i < minorObjects.Count; i++)
+                {
+                    EnableDisable(minorObjects[i], ShouldEnable(PLAYER.transform, minorObjects[i].transform));
                 }
             }
-            Frame++;
-            if (Frame > ResetPeriod)
+            if ((bool)teimoshop.GetValue() == true)
             {
-                if (ResetPeriod > 60)
+                STORE.EnableDisable(ShouldEnable(PLAYER.transform, STORE.transform));
+            }
+            if ((bool)fleetarirepairshop.GetValue() == true)
+            {
+                REPAIRSHOP.EnableDisable(ShouldEnable(PLAYER.transform, REPAIRSHOP.transform));
+            }
+
+            //Away from house
+            if (Distance(PLAYER.transform, YARD.transform) > 100)
+            {
+                for (int i = 0; i < awayFromHouse.Count; i++)
                 {
-                    ResetPeriod = 60;
+                    EnableDisable(awayFromHouse[i], true);
                 }
-                Frame = 0;
+            }
+            else
+            {
+                for (int i = 0; i < awayFromHouse.Count; i++)
+                {
+                    EnableDisable(awayFromHouse[i], false);
+                }
             }
         }
 
