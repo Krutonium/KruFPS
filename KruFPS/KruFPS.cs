@@ -167,7 +167,9 @@ namespace KruFPS
 
             ModConsole.Print("[KruFPS] Found all objects");
             DrawDistance = float.Parse(RenderDistance.GetValue().ToString()); //Update saved draw distance variable
+            HookAllSavePoints(); //Hook all save points (it's before first pass of Update)
         }
+
 
         public static void UpdateDrawDistance()
         {
@@ -211,36 +213,64 @@ namespace KruFPS
             Settings.AddSlider(this, RenderDistance, 1, 6000);
 
         }
-
-        public override void OnSave()
+        private void HookAllSavePoints()
         {
-            // Called once, when save and quit
-            // Serialize your save file here.
-            foreach (var item in awayFromHouse)
-            {
-                EnableDisable(item, true); //ENABLE
-            }
-            foreach (var item in gameObjects)
-            {
-                EnableDisable(item, true); //ENABLE
-            }
-            FERNDALE.EnableDisable(true);
-            FLATBED.EnableDisable(true);
-            GIFU.EnableDisable(true);
-            HAYOSIKO.EnableDisable(true);
-            JONNEZ.EnableDisable(true);
-            KEKMET.EnableDisable(true);
-            RUSKO.EnableDisable(true);
-            CABIN.SetActive(true);
-            KINEMATIC.isKinematic = true;
+            //Here we hook into all save points
+            //So we can do stuff Before SaveGame event is fired,
+            //In PrepareForSaveGame() function.
+            FsmHook.FsmInject(GameObject.Find("REPAIRSHOP").transform.Find("LOD/SHITHOUSE/SavePivot").GetChild(0).gameObject, "Mute audio", PrepareForSaveGame);
+            if (!GameObject.Find("STORE").transform.Find("LOD/SHITHOUSE/SavePivot").GetChild(0).gameObject.activeSelf)
+                GameObject.Find("STORE").transform.Find("LOD/SHITHOUSE/SavePivot").GetChild(0).gameObject.SetActive(true);
+            FsmHook.FsmInject(GameObject.Find("STORE").transform.Find("LOD/SHITHOUSE/SavePivot").GetChild(0).gameObject, "Mute audio", PrepareForSaveGame);
+            FsmHook.FsmInject(GameObject.Find("COTTAGE").transform.Find("SHITHOUSE/SavePivot").GetChild(0).gameObject, "Mute audio", PrepareForSaveGame);
+            if (!GameObject.Find("CABIN").transform.Find("SHITHOUSE/SavePivot").GetChild(0).gameObject.activeSelf)
+                GameObject.Find("CABIN").transform.Find("SHITHOUSE/SavePivot").GetChild(0).gameObject.SetActive(true);
+            FsmHook.FsmInject(GameObject.Find("CABIN").transform.Find("SHITHOUSE/SavePivot").GetChild(0).gameObject, "Mute audio", PrepareForSaveGame);
+            FsmHook.FsmInject(GameObject.Find("LANDFILL").transform.Find("SHITHOUSE/SavePivot").GetChild(0).gameObject, "Mute audio", PrepareForSaveGame);
+            FsmHook.FsmInject(GameObject.Find("YARD").transform.Find("Building/LIVINGROOM/LOD_livingroom/SAVEGAME").gameObject, "Mute audio", PrepareForSaveGame);
+            if(GameObject.Find("JAIL") != null)
+                FsmHook.FsmInject(GameObject.Find("JAIL/SAVEGAME"), "Mute audio", PrepareForSaveGame);
 
-            foreach (var item in minorObjects)
+        }
+        private void PrepareForSaveGame()
+        {
+            Debug.Log("[KruFPS] Prepare for save started!");
+            //Prepare everything here for SAVEGAME event
+            try
             {
-                EnableDisable(item, true);
-            }
+                foreach (GameObject item in awayFromHouse)
+                {
+                    EnableDisable(item, true); //ENABLE
+                }
+                foreach (GameObject item in gameObjects)
+                {
+                    EnableDisable(item, true); //ENABLE
+                }
+                FERNDALE.EnableDisable(true);
+                FLATBED.EnableDisable(true);
+                GIFU.EnableDisable(true);
+                HAYOSIKO.EnableDisable(true);
+                JONNEZ.EnableDisable(true);
+                KEKMET.EnableDisable(true);
+                RUSKO.EnableDisable(true);
+                CABIN.SetActive(true);
+                KINEMATIC.isKinematic = true;
 
-            STORE.EnableDisable(true);
-            REPAIRSHOP.EnableDisable(true);
+                foreach (GameObject item in minorObjects)
+                {
+                    EnableDisable(item, true);
+                }
+
+                STORE.EnableDisable(true);
+                REPAIRSHOP.EnableDisable(true);
+            }
+            catch (System.Exception e)
+            {
+                //Don't break playmaker state, catch potential error in output_log.txt
+                Debug.Log("[KruFPS] Prepare for save failed with Exception:");
+                Debug.Log(e);
+            }
+            Debug.Log("[KruFPS] Prepare for save finished!");
         }
 
         public override void OnGUI()
