@@ -15,7 +15,7 @@ namespace KruFPS
         public override string ID => "KruFPS"; //Your mod ID (unique)
         public override string Name => "KruFPS"; //You mod name
         public override string Author => "Krutonium"; //Your Username
-        public override string Version => "1.0"; //Version
+        public override string Version => "3.0"; //Version
 
         // Set this to true if you will be load custom assets from Assets folder.
         // This will create subfolder in Assets folder for your mod.
@@ -24,6 +24,7 @@ namespace KruFPS
         private GameObject PLAYER;
         private GameObject YARD;
         private Vehicle SATSUMA;
+        private GameObject SATSUMA_2;
         private Vehicle FLATBED;
         private Vehicle GIFU;
         private Vehicle HAYOSIKO;
@@ -33,14 +34,16 @@ namespace KruFPS
         private Vehicle FERNDALE;
         private GameObject CABIN;
         private Rigidbody KINEMATIC;
+        private CarDynamics CAR_DYNAMICS;
+        private Axles AXLES;
         private List<GameObject> gameObjects;
         private List<GameObject> awayFromHouse;
         //private List<GameObject> Cars;
-        private Dictionary<string, Transform> objectCoords;
 
         List<GameObject> minorObjects = new List<GameObject>(); 
         // List of all whitelisted objects that can appear on the minorObjects list
         // Note: batteries aren't included
+
         string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
         "empty plastic can", "fire extinguisher", "gasoline", "grill", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk", 
         "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "ratchet set", "potato chips", "sausages", "sugar", "spanner set",
@@ -63,6 +66,7 @@ namespace KruFPS
             //Player Vehicles
             // For each vehicle in the game, a new instance of Vehicle class is initialized.
             SATSUMA = new Vehicle("SATSUMA(557kg, 248)");
+            SATSUMA_2 = GameObject.Find("SATSUMA(557kg, 248)");
             FLATBED = new Vehicle("FLATBED");
             GIFU = new Vehicle("GIFU(750/450psi)");
             HAYOSIKO = new Vehicle("HAYOSIKO(1500kg, 250)");
@@ -71,6 +75,8 @@ namespace KruFPS
             RUSKO = new Vehicle("RCO_RUSCKO12(270)");
             FERNDALE = new Vehicle("FERNDALE(1630kg)");
             CABIN = GameObject.Find("CABIN");
+            AXLES = SATSUMA_2.GetComponent<Axles>();
+            CAR_DYNAMICS = SATSUMA_2.GetComponent<CarDynamics>();
             ModConsole.Print("Cars Done");
 
             //Locations and objects that can be enabled and disabled easily on proximity
@@ -171,7 +177,7 @@ namespace KruFPS
             // All settings should be created here. 
             // DO NOT put anything else here that settings.
             Settings.AddHeader(this, "Warning: Enabling these removes more lag but can break the game until you save and reload.");
-            Settings.AddText(this, "Satsuma is undriveable, others lose engine sounds.");
+            Settings.AddText(this, "The Satsuma has parts disabled, the others are completely disabled.");
             Settings.AddCheckBox(this, Satsuma);
             Settings.AddCheckBox(this, ferndale);
             Settings.AddCheckBox(this, flatbed);
@@ -183,6 +189,7 @@ namespace KruFPS
             Settings.AddCheckBox(this, minorobjects);
             Settings.AddCheckBox(this, teimoshop);
             Settings.AddText(this, "Check this if you're not using it.");
+            Settings.AddText(this, "Check this if you're not using the cabin.");
             Settings.AddCheckBox(this, cabin);
             Settings.AddText(this, "Turn this down if you have a weak GPU.");
             Settings.AddSlider(this, RenderDistance, 1, 6000);
@@ -241,10 +248,14 @@ namespace KruFPS
                     if (Distance(PLAYER.transform, SATSUMA.transform) > 5)
                     {
                         KINEMATIC.isKinematic = true;
+                        AXLES.enabled = true;
+                        CAR_DYNAMICS.enabled = true;
                     }
                     else
                     {
                         KINEMATIC.isKinematic = false;
+                        AXLES.enabled = false;
+                        CAR_DYNAMICS.enabled = false;
                     }
                     // ^ Mild Performance Win
                     //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
