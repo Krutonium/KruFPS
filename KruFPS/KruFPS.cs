@@ -311,20 +311,15 @@ namespace KruFPS
 
         private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 200)
         {
-
             //This determines if somthing should be enabled or not - Returning FALSE means that the object should be Disabled, and inversely
             // if it returns TRUE the object should be Enabled.
 
-            float distance = Vector3.Distance(player.position, target.position);
-            //ModConsole.Print(distance);
-            try
+            float distance = 0f;
+            if (player != null && target != null)
             {
-                return distance < distanceTarget;
+                distance = Vector3.Distance(player.position, target.position);
             }
-            catch
-            {
-                return true;
-            }
+            return distance < distanceTarget;
         }
         private float Distance(Transform player, Transform target)
         {
@@ -333,11 +328,8 @@ namespace KruFPS
         }
         private void EnableDisable(GameObject thing, bool enabled)
         {
-            try
-            {
+            if (thing != null && thing.activeSelf != enabled)
                 thing.SetActive(enabled);
-            }
-            catch { }
         }
     }
 }
