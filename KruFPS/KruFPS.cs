@@ -40,12 +40,12 @@ namespace KruFPS
         private List<GameObject> awayFromHouse;
         //private List<GameObject> Cars;
 
-        List<GameObject> minorObjects = new List<GameObject>(); 
+        List<GameObject> minorObjects = new List<GameObject>();
         // List of all whitelisted objects that can appear on the minorObjects list
         // Note: batteries aren't included
-        string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", 
-        "diesel", "empty plastic can", "fire extinguisher", "gasoline", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk", 
-        "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "potato chips", "sausages", "shopping bag", "sugar", "spray can", 
+        string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant",
+        "diesel", "empty plastic can", "fire extinguisher", "gasoline", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk",
+        "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "potato chips", "sausages", "shopping bag", "sugar", "spray can",
             "two stroke fuel", "wood carrier", "yeast" };
 
         private static float DrawDistance = 420;
@@ -186,7 +186,7 @@ namespace KruFPS
             {
                 EnableDisable(item, true); //ENABLE
             }
-            foreach(var item in gameObjects)
+            foreach (var item in gameObjects)
             {
                 EnableDisable(item, true); //ENABLE
             }
@@ -220,9 +220,9 @@ namespace KruFPS
                 //Code to run once every second assuming 60 FPS
                 Camera.main.farClipPlane = DrawDistance;
                 //ModConsole.Print(RenderDistance.GetValue());
-                foreach (var item in gameObjects)
+                for (int i = 0; i < gameObjects.Count; i++)
                 {
-                    EnableDisable(item, ShouldEnable(PLAYER.transform, item.transform));
+                    EnableDisable(gameObjects[i], ShouldEnable(PLAYER.transform, gameObjects[i].transform));
                 }
                 //CARS
                 if ((bool)Satsuma.GetValue() == true) //Satsuma
@@ -270,34 +270,38 @@ namespace KruFPS
                 {
                     KEKMET.EnableDisable(ShouldEnable(PLAYER.transform, KEKMET.transform));
                 }
-                if((bool)cabin.GetValue() == true)
+                if ((bool)cabin.GetValue() == true)
                 {
                     EnableDisable(CABIN, ShouldEnable(PLAYER.transform, CABIN.transform));
                 }
                 if ((bool)minorobjects.GetValue() == true)
                 {
-                    foreach (GameObject obj in minorObjects)
-                        EnableDisable(obj, ShouldEnable(PLAYER.transform, obj.transform));
+                    for (int i = 0; i < minorObjects.Count; i++)
+                    {
+                        EnableDisable(minorObjects[i], ShouldEnable(PLAYER.transform, minorObjects[i].transform));
+                    }
                 }
 
                 //Away from house
-                if (Distance(PLAYER.transform, YARD.transform) > 100) {
-                    foreach(var item in awayFromHouse)
-                    {
-                        EnableDisable(item, true);
-                    }
-                } else
+                if (Distance(PLAYER.transform, YARD.transform) > 100)
                 {
-                    foreach(var item in awayFromHouse)
+                    for (int i = 0; i < awayFromHouse.Count; i++)
                     {
-                        EnableDisable(item, false);
+                        EnableDisable(awayFromHouse[i], true);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < awayFromHouse.Count; i++)
+                    {
+                        EnableDisable(awayFromHouse[i], false);
                     }
                 }
             }
             Frame++;
             if (Frame > ResetPeriod)
             {
-                if(ResetPeriod > 60)
+                if (ResetPeriod > 60)
                 {
                     ResetPeriod = 60;
                 }

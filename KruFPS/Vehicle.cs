@@ -99,8 +99,10 @@ namespace KruFPS
         /// <param name="newParent"></param>
         private void SetParentForChilds(Transform[] childs, GameObject newParent)
         {
-            foreach (Transform child in childs)
-                child.parent = newParent.transform;
+            for (int i = 0; i < childs.Length; i++)
+            {
+                childs[i].parent = newParent.transform;
+            }
         }
     }
 }
