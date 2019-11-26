@@ -24,6 +24,7 @@ namespace KruFPS
         private GameObject PLAYER;
         private GameObject YARD;
         private Vehicle SATSUMA;
+        private GameObject SATSUMA_2;
         private Vehicle FLATBED;
         private Vehicle GIFU;
         private Vehicle HAYOSIKO;
@@ -33,10 +34,11 @@ namespace KruFPS
         private Vehicle FERNDALE;
         private GameObject CABIN;
         private Rigidbody KINEMATIC;
+        private CarDynamics CAR_DYNAMICS;
+        private Axles AXLES;
         private List<GameObject> gameObjects;
         private List<GameObject> awayFromHouse;
         //private List<GameObject> Cars;
-        private Dictionary<string, Transform> objectCoords;
 
         List<GameObject> minorObjects = new List<GameObject>(); 
         // List of all whitelisted objects that can appear on the minorObjects list
@@ -56,7 +58,6 @@ namespace KruFPS
         public override void OnLoad()
         {
             gameObjects = new List<GameObject>();
-            objectCoords = new Dictionary<string, Transform>();
             //Cars = new List<GameObject>();
 
             //Player Vehicles
@@ -69,6 +70,7 @@ namespace KruFPS
             //Cars.Add(GameObject.Find("RCO_RUSCKO12(270)"));
             //SATSUMA = GameObject.Find("SATSUMA(557kg, 248)");
             SATSUMA = new Vehicle("SATSUMA(557kg, 248)");
+            SATSUMA_2 = GameObject.Find("SATSUMA(557kg, 248)");
             FLATBED = new Vehicle("FLATBED");
             GIFU = new Vehicle("GIFU(750/450psi)");
             HAYOSIKO = new Vehicle("HAYOSIKO(1500kg, 250)");
@@ -77,6 +79,8 @@ namespace KruFPS
             RUSKO = new Vehicle("RCO_RUSCKO12(270)");
             FERNDALE = new Vehicle("FERNDALE(1630kg)");
             CABIN = GameObject.Find("CABIN");
+            AXLES = SATSUMA_2.GetComponent<Axles>();
+            CAR_DYNAMICS = SATSUMA_2.GetComponent<CarDynamics>();
             ModConsole.Print("Cars Done");
 
             //Locations and objects that can be enabled and disabled easily on proximity
@@ -226,10 +230,14 @@ namespace KruFPS
                     if (Distance(PLAYER.transform, SATSUMA.transform) > 5)
                     {
                         KINEMATIC.isKinematic = true;
+                        AXLES.enabled = true;
+                        CAR_DYNAMICS.enabled = true;
                     }
                     else
                     {
                         KINEMATIC.isKinematic = false;
+                        AXLES.enabled = false;
+                        CAR_DYNAMICS.enabled = false;
                     }
                     // ^ Mild Performance Win
                     //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
@@ -297,7 +305,7 @@ namespace KruFPS
             }
         }
 
-        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 200)
+        private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 10)
         {
 
             //This determines if somthing should be enabled or not - Returning FALSE means that the object should be Disabled, and inversely
