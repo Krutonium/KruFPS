@@ -25,7 +25,7 @@ namespace KruFPS
         private GameObject YARD;
         private Vehicle SATSUMA;
         private Vehicle FLATBED;
-        private Vehicle GIFU;
+        private Gifu GIFU;
         private Vehicle HAYOSIKO;
         private Vehicle JONNEZ;
         private Vehicle KEKMET;
@@ -47,6 +47,10 @@ namespace KruFPS
         "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast" };
 
         private Store STORE;
+        private RepairShop REPAIRSHOP;
+
+        // Objects that are further than others and needto be rendered earlier
+        List<GameObject> farGameObjects = new List<GameObject>();
 
         private static float DrawDistance = 420;
         //private KeyValuePair<GameObject, Vector3> internalcars = new KeyValuePair<GameObject, Vector3>();
@@ -64,7 +68,7 @@ namespace KruFPS
             // For each vehicle in the game, a new instance of Vehicle class is initialized.
             SATSUMA = new Vehicle("SATSUMA(557kg, 248)");
             FLATBED = new Vehicle("FLATBED");
-            GIFU = new Vehicle("GIFU(750/450psi)");
+            GIFU = new Gifu("GIFU(750/450psi)");
             HAYOSIKO = new Vehicle("HAYOSIKO(1500kg, 250)");
             JONNEZ = new Vehicle("JONNEZ ES(Clone)");
             KEKMET = new Vehicle("KEKMET(350-400psi)");
@@ -94,19 +98,39 @@ namespace KruFPS
 
             // Initialize Store class
             STORE = new Store();
+            REPAIRSHOP = new RepairShop();
 
             // Find house of Teimo and detach it from Perajarvi, so it can be loaded and unloaded separately
             // It shouldn't cause any issues, but that needs testing.
-            GameObject TEIMO_HOUSE = GameObject.Find("PERAJARVI").transform.Find("HouseRintama4").gameObject;
+            GameObject perajarvi = GameObject.Find("PERAJARVI");
+            GameObject TEIMO_HOUSE = perajarvi.transform.Find("HouseRintama4").gameObject;
             TEIMO_HOUSE.transform.parent = null;
             // Same for chicken house
-            GameObject CHICKEN_HOUSE = GameObject.Find("PERAJARVI").transform.Find("ChickenHouse").gameObject;
+            GameObject CHICKEN_HOUSE = perajarvi.transform.Find("ChickenHouse").gameObject;
             CHICKEN_HOUSE.transform.parent = null;
 
             // Now that Teimo's house and chicken house is separated from Perajarvi, we can manage them separately. We're throwing them to gameObjects.
             // Fixes the bug with both dissapearing when leaving Perajarvi, even tho logically they should still load when approached.
             gameObjects.Add(TEIMO_HOUSE);
             gameObjects.Add(CHICKEN_HOUSE);
+
+            // Fix for disappearing grain processing plant
+            // https://my-summer-car.fandom.com/wiki/Grain_processing_plant
+            //
+            // It also puts them to farGameObjects - objects that are larger and need to be rendered from further distance
+            foreach (Transform trans in perajarvi.GetComponentsInChildren<Transform>())
+            {
+                if (trans.gameObject.name.Contains("silo"))
+                {
+                    trans.parent = null;
+                    farGameObjects.Add(trans.gameObject);
+                }
+            }
+
+            // Chicken house (barn) close to player's house
+            Transform playerChickenHouse = GameObject.Find("Buildings").transform.Find("ChickenHouse");
+            playerChickenHouse.parent = null;
+            gameObjects.Add(playerChickenHouse.gameObject);
 
             ModConsole.Print("GameObjects Done");
 
@@ -165,6 +189,7 @@ namespace KruFPS
         Settings rusko = new Settings("rusko", "Rusko", false);
         Settings cabin = new Settings("cabin", "Unload the Cabin", false);
         Settings teimoshop = new Settings("teimoshop", "Teimo's Shop", false);
+        Settings fleetarirepairshop = new Settings("fleetarirepairshop", "Fleetari Repair Shop", false);
         Settings minorobjects = new Settings("minorObjects", "Minor objects (ex. beer cases, sausages...)", false);
         public override void ModSettings()
         {
@@ -182,6 +207,7 @@ namespace KruFPS
             Settings.AddCheckBox(this, rusko);
             Settings.AddCheckBox(this, minorobjects);
             Settings.AddCheckBox(this, teimoshop);
+            Settings.AddCheckBox(this, fleetarirepairshop);
             Settings.AddText(this, "Check this if you're not using it.");
             Settings.AddCheckBox(this, cabin);
             Settings.AddText(this, "Turn this down if you have a weak GPU.");
@@ -215,6 +241,9 @@ namespace KruFPS
             {
                 EnableDisable(item, true);
             }
+
+            STORE.EnableDisable(true);
+            REPAIRSHOP.EnableDisable(true);
         }
 
         public override void OnGUI()
@@ -235,6 +264,13 @@ namespace KruFPS
                 {
                     EnableDisable(item, ShouldEnable(PLAYER.transform, item.transform));
                 }
+
+                // Objects that are larger and need to enabled earlier
+                foreach (var item in farGameObjects)
+                {
+                    EnableDisable(item, ShouldEnable(PLAYER.transform, item.transform, 400));
+                }
+
                 //CARS
                 if ((bool)Satsuma.GetValue() == true) //Satsuma
                 {
@@ -289,6 +325,10 @@ namespace KruFPS
                 if ((bool)teimoshop.GetValue() == true)
                 {
                     STORE.EnableDisable(ShouldEnable(PLAYER.transform, STORE.transform));
+                }
+                if ((bool)fleetarirepairshop.GetValue() == true)
+                {
+                    REPAIRSHOP.EnableDisable(ShouldEnable(PLAYER.transform, REPAIRSHOP.transform));
                 }
 
                 //Away from house
