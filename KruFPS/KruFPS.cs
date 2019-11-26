@@ -41,10 +41,12 @@ namespace KruFPS
         List<GameObject> minorObjects = new List<GameObject>(); 
         // List of all whitelisted objects that can appear on the minorObjects list
         // Note: batteries aren't included
-        string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", 
-        "empty plastic can", "fire extinguisher", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk", 
-        "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "potato chips", "sausages", "sugar", "spray can", 
-            "two stroke fuel", "wood carrier", "yeast" };
+        string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
+        "empty plastic can", "fire extinguisher", "gasoline", "grill", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk", 
+        "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "ratchet set", "potato chips", "sausages", "sugar", "spanner set",
+        "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast" };
+
+        private Store STORE;
 
         private static float DrawDistance = 420;
         //private KeyValuePair<GameObject, Vector3> internalcars = new KeyValuePair<GameObject, Vector3>();
@@ -57,17 +59,9 @@ namespace KruFPS
         {
             gameObjects = new List<GameObject>();
             objectCoords = new Dictionary<string, Transform>();
-            //Cars = new List<GameObject>();
 
             //Player Vehicles
-            //Cars.Add(GameObject.Find("FERNDALE(1630kg)"));
-            //Cars.Add(GameObject.Find("FLATBED"));
-            //Cars.Add(GameObject.Find("GIFU(750/450psi)"));
-            //Cars.Add(GameObject.Find("HAYOSIKO(1500kg, 250)"));
-            //Cars.Add(GameObject.Find("JONNEZ ES(Clone)"));
-            //Cars.Add(GameObject.Find("KEKMET(350-400psi)"));
-            //Cars.Add(GameObject.Find("RCO_RUSCKO12(270)"));
-            //SATSUMA = GameObject.Find("SATSUMA(557kg, 248)");
+            // For each vehicle in the game, a new instance of Vehicle class is initialized.
             SATSUMA = new Vehicle("SATSUMA(557kg, 248)");
             FLATBED = new Vehicle("FLATBED");
             GIFU = new Vehicle("GIFU(750/450psi)");
@@ -91,13 +85,28 @@ namespace KruFPS
             //gameObjects.Add(GameObject.Find("REPAIRSHOP")); //Has to be loaded for repairs and such - Maybe fixable
             gameObjects.Add(GameObject.Find("RYKIPOHJA"));
             gameObjects.Add(GameObject.Find("SOCCER"));
-            //gameObjects.Add(GameObject.Find("STORE")); //Has to be loaded on Thursdays to restock
             gameObjects.Add(GameObject.Find("WATERFACILITY"));
             gameObjects.Add(GameObject.Find("KILJUGUY"));
             gameObjects.Add(GameObject.Find("CHURCHWALL"));
             gameObjects.Add(GameObject.Find("TREES1_COLL"));
             gameObjects.Add(GameObject.Find("TREES2_COLL"));
             gameObjects.Add(GameObject.Find("TREES3_COLL"));
+
+            // Initialize Store class
+            STORE = new Store();
+
+            // Find house of Teimo and detach it from Perajarvi, so it can be loaded and unloaded separately
+            // It shouldn't cause any issues, but that needs testing.
+            GameObject TEIMO_HOUSE = GameObject.Find("PERAJARVI").transform.Find("HouseRintama4").gameObject;
+            TEIMO_HOUSE.transform.parent = null;
+            // Same for chicken house
+            GameObject CHICKEN_HOUSE = GameObject.Find("PERAJARVI").transform.Find("ChickenHouse").gameObject;
+            CHICKEN_HOUSE.transform.parent = null;
+
+            // Now that Teimo's house and chicken house is separated from Perajarvi, we can manage them separately. We're throwing them to gameObjects.
+            // Fixes the bug with both dissapearing when leaving Perajarvi, even tho logically they should still load when approached.
+            gameObjects.Add(TEIMO_HOUSE);
+            gameObjects.Add(CHICKEN_HOUSE);
 
             ModConsole.Print("GameObjects Done");
 
@@ -118,7 +127,10 @@ namespace KruFPS
 
             //TODO: 
             // Figure out how to make repairs works at Fleetari's without loading it
-            // Figure out how to trigger a restock at Tiemos on Thursdays without loading it.
+            // (*1) Figure out how to trigger a restock at Tiemos on Thursdays without loading it.
+
+            //NOTES:
+            // (*1) Partially addressed the Teimo's issue, by unloading part of the shop
 
             //Camera.main.farClipPlane = (int)RenderDistance.Value; //Helps with lower end GPU's. This specific value. Any others are wrong.
             PLAYER = GameObject.Find("PLAYER");
@@ -127,10 +139,11 @@ namespace KruFPS
 
             // Get all minor objects from the game world (like beer cases, sausages)
             // Only items that are in the listOfMinorObjects list, and also contain "(itemx)" in their name will be loaded
+            // UPDATED: added support for (Clone) items
             GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
             foreach (GameObject gameObject in allObjects)
                 foreach (string itemName in listOfMinorObjects)
-                    if (gameObject.name.Contains(itemName) && gameObject.name.Contains("(itemx)"))
+                    if (gameObject.name.Contains(itemName) && gameObject.name.ContainsAny("(itemx)", "(Clone)"))
                         minorObjects.Add(gameObject);
 
             ModConsole.Print("[KruFPS] Found all objects");
@@ -151,6 +164,7 @@ namespace KruFPS
         Settings kekmet = new Settings("kekmet", "Kekmet", false);
         Settings rusko = new Settings("rusko", "Rusko", false);
         Settings cabin = new Settings("cabin", "Unload the Cabin", false);
+        Settings teimoshop = new Settings("teimoshop", "Teimo's Shop", false);
         Settings minorobjects = new Settings("minorObjects", "Minor objects (ex. beer cases, sausages...)", false);
         public override void ModSettings()
         {
@@ -167,6 +181,7 @@ namespace KruFPS
             Settings.AddCheckBox(this, kekmet);
             Settings.AddCheckBox(this, rusko);
             Settings.AddCheckBox(this, minorobjects);
+            Settings.AddCheckBox(this, teimoshop);
             Settings.AddText(this, "Check this if you're not using it.");
             Settings.AddCheckBox(this, cabin);
             Settings.AddText(this, "Turn this down if you have a weak GPU.");
@@ -270,6 +285,10 @@ namespace KruFPS
                 {
                     foreach (GameObject obj in minorObjects)
                         EnableDisable(obj, ShouldEnable(PLAYER.transform, obj.transform));
+                }
+                if ((bool)teimoshop.GetValue() == true)
+                {
+                    STORE.EnableDisable(ShouldEnable(PLAYER.transform, STORE.transform));
                 }
 
                 //Away from house

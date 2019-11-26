@@ -54,6 +54,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Store.cs" />
+    <Compile Include="Utilities.cs" />
     <Compile Include="Vehicle.cs" />
     <Compile Include="KruFPS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
