@@ -21,8 +21,8 @@ namespace KruFPS
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
 
-        Transform[] AudioObjects;
-        GameObject TemporaryAudioParent;
+        internal Transform[] AudioObjects;
+        internal GameObject TemporaryAudioParent;
 
         // Overwrites the "Component.transform", to prevent eventual mod crashes caused by missuse of Vehicle.transform.
         // Technically, you should use Vehicle.Object.transform (ex. GIFU.Object.Transform), this here just lets you use Vehicle.transform
@@ -53,7 +53,7 @@ namespace KruFPS
         /// Basically looks for files with "audio" and "SoundSrc" name in it
         /// </summary>
         /// <returns></returns>
-        Transform[] GetAudioObjects()
+        internal Transform[] GetAudioObjects()
         {
             Transform[] childs = Object.transform.GetComponentsInChildren<Transform>();
             return childs.Where(obj => obj.gameObject.name.Contains("audio") || obj.gameObject.name.Contains("SoundSrc")).ToArray();
@@ -95,12 +95,22 @@ namespace KruFPS
         /// </summary>
         /// <param name="childs"></param>
         /// <param name="newParent"></param>
-        private void SetParentForChilds(Transform[] childs, GameObject newParent)
+        internal void SetParentForChilds(Transform[] childs, GameObject newParent)
         {
             for (int i = 0; i < childs.Length; i++)
             {
                 childs[i].parent = newParent.transform;
             }
+        }
+
+        /// <summary>
+        /// Changes parent for single child
+        /// </summary>
+        /// <param name="child"></param>
+        /// <param name="newParent"></param>
+        internal void SetParentForChild(Transform child, GameObject newParent)
+        {
+            child.transform.parent = newParent.transform;
         }
     }
 }
