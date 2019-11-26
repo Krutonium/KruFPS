@@ -170,7 +170,7 @@ namespace KruFPS
                         minorObjects.Add(gameObject);
 
             ModConsole.Print("[KruFPS] Found all objects");
-            //DrawDistance = (float)RenderDistance.GetValue();
+            DrawDistance = float.Parse(RenderDistance.GetValue().ToString()); //Update saved draw distance variable
         }
 
         public static void UpdateDrawDistance()

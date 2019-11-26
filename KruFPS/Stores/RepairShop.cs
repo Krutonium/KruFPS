@@ -2,7 +2,7 @@
 
 namespace KruFPS
 {
-    class RepairShop : MonoBehaviour
+    class RepairShop
     {
         // RepairShop Class - made by Konrad "Athlon" Figura
         //
@@ -25,7 +25,7 @@ namespace KruFPS
         /// </summary>
         Transform[] Childs;
 
-        public new Transform transform { get => StoreObject.transform; }
+        public Transform transform => StoreObject.transform;
 
         /// <summary>
         /// Saves what value has been last used, to prevent unnescesary launch of loop.
@@ -47,17 +47,15 @@ namespace KruFPS
         /// <param name="enabled"></param>
         public void EnableDisable(bool enabled)
         {
-            try
-            {
-                if (lastValue == enabled) return;
-                lastValue = enabled;
+            if (lastValue == enabled) return;
+            lastValue = enabled;
 
-                // Load and unload only the objects that aren't on the whitelist.
-                foreach (Transform trans in Childs)
-                    if (!trans.gameObject.name.ContainsAny(GameObjectWhiteList))
-                        trans.gameObject.SetActive(enabled);
+            // Load and unload only the objects that aren't on the whitelist.
+            for (int i = 0; i < Childs.Length; i++)
+            {
+                if (!Childs[i].gameObject.name.ContainsAny(GameObjectWhiteList))
+                    Childs[i].gameObject.SetActive(enabled);
             }
-            catch { }
         }
 
         /// <summary>
