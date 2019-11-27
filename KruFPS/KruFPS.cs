@@ -309,14 +309,14 @@ namespace KruFPS
                 if (Distance(PLAYER.transform, SATSUMA.transform) > 5)
                 {
                     KINEMATIC.isKinematic = true;
-                    AXLES.enabled = true;
-                    CAR_DYNAMICS.enabled = true;
+                    AXLES.enabled = false;
+                    CAR_DYNAMICS.enabled = false;
                 }
                 else
                 {
                     KINEMATIC.isKinematic = false;
-                    AXLES.enabled = false;
-                    CAR_DYNAMICS.enabled = false;
+                    AXLES.enabled = true;
+                    CAR_DYNAMICS.enabled = true;
                 }
                 // ^ Mild Performance Win
                 //EnableDisable(SATSUMA, ShouldEnable(PLAYER.transform, SATSUMA.transform));
