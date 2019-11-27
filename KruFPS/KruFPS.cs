@@ -41,7 +41,7 @@ namespace KruFPS
         string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
         "empty plastic can", "fire extinguisher", "gasoline", "grill", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk",
         "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "ratchet set", "potato chips", "sausages", "sugar", "spanner set",
-        "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast", "shopping bag" };
+        "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast", "shopping bag", "flashlight" };
 
         private Store STORE;
         private RepairShop REPAIRSHOP;
@@ -70,6 +70,7 @@ namespace KruFPS
             CABIN = GameObject.Find("CABIN");
             AXLES = SATSUMA.Object.GetComponent<Axles>();
             CAR_DYNAMICS = SATSUMA.Object.GetComponent<CarDynamics>();
+
             ModConsole.Print("Cars Done");
 
             //Locations and objects that can be enabled and disabled easily on proximity
