@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace KruFPS
 {
-    class Vehicle : MonoBehaviour
+    class Vehicle
     {
         // Vehicle class - made by Konrad "Athlon" Figura
         // 
@@ -27,7 +27,7 @@ namespace KruFPS
         // Overwrites the "Component.transform", to prevent eventual mod crashes caused by missuse of Vehicle.transform.
         // Technically, you should use Vehicle.Object.transform (ex. GIFU.Object.Transform), this here just lets you use Vehicle.transform
         // (ex. GIFU.transform).
-        public new Transform transform { get => Object.transform; }
+        public Transform transform => Object.transform;
 
         /// <summary>
         /// Initialize class
@@ -64,33 +64,31 @@ namespace KruFPS
         /// </summary>
         public void EnableDisable(bool enabled)
         {
-            try
+            if (Object == null) return;
+            // Don't run the code, if the value is the same
+            if (Object.activeSelf == enabled) return;
+
+            // If we're disabling a car, set the audio child parent to TemporaryAudioParent, and save the position and rotation.
+            // We're doing that BEFORE we disable the object.
+            if (!enabled)
             {
-                // Don't run the code, if the value is the same
-                if (Object.activeSelf == enabled) return;
-
-                // If we're disabling a car, set the audio child parent to TemporaryAudioParent, and save the position and rotation.
-                // We're doing that BEFORE we disable the object.
-                if (!enabled)
-                {
-                    SetParentForChilds(AudioObjects, TemporaryAudioParent);
-                    Position = Object.transform.localPosition;
-                    Rotation = Object.transform.localRotation;
-                }
-
-                Object.SetActive(enabled);
-
-                // Uppon enabling the file, set the localPosition and localRotation to the object's transform, and change audio source parents to Object
-                // We're doing that AFTER we enable the object.
-                if (enabled)
-                {
-                    Object.transform.localPosition = Position;
-                    Object.transform.localRotation = Rotation;
-                    SetParentForChilds(AudioObjects, Object);
-                }
+                SetParentForChilds(AudioObjects, TemporaryAudioParent);
+                Position = Object.transform.localPosition;
+                Rotation = Object.transform.localRotation;
             }
-            catch { }
+
+            Object.SetActive(enabled);
+
+            // Uppon enabling the file, set the localPosition and localRotation to the object's transform, and change audio source parents to Object
+            // We're doing that AFTER we enable the object.
+            if (enabled)
+            {
+                Object.transform.localPosition = Position;
+                Object.transform.localRotation = Rotation;
+                SetParentForChilds(AudioObjects, Object);
+            }
         }
+
 
         /// <summary>
         /// Changes audio childs parent
@@ -99,8 +97,10 @@ namespace KruFPS
         /// <param name="newParent"></param>
         internal void SetParentForChilds(Transform[] childs, GameObject newParent)
         {
-            foreach (Transform child in childs)
-                child.parent = newParent.transform;
+            for (int i = 0; i < childs.Length; i++)
+            {
+                childs[i].parent = newParent.transform;
+            }
         }
 
         /// <summary>
