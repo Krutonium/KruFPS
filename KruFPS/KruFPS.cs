@@ -31,6 +31,7 @@ namespace KruFPS
         private Axles AXLES;
         private List<GameObject> gameObjects;
         private List<GameObject> awayFromHouse;
+        private GameObject DRAGRACE;
         //private List<GameObject> Cars;
 
         List<GameObject> minorObjects = new List<GameObject>();
@@ -44,6 +45,7 @@ namespace KruFPS
 
         private Store STORE;
         private RepairShop REPAIRSHOP;
+        //private DragRace DRAGRACE;
 
         // Objects that should be loaded from further distance, because it looks terrbile when they load at default value...
         List<GameObject> farGameObjects = new List<GameObject>();
@@ -72,14 +74,11 @@ namespace KruFPS
 
             //Locations and objects that can be enabled and disabled easily on proximity
             gameObjects.Add(GameObject.Find("BOAT")); //Boat is not a Car, oddly enough.
-            //gameObjects.Add(GameObject.Find("CABIN"));
             gameObjects.Add(GameObject.Find("COTTAGE"));
             gameObjects.Add(GameObject.Find("DANCEHALL"));
-            //gameObjects.Add(GameObject.Find("DRAGRACE")); //Is broken when disabled, so leave enabled
             gameObjects.Add(GameObject.Find("INSPECTION"));
             gameObjects.Add(GameObject.Find("LANDFILL"));
             gameObjects.Add(GameObject.Find("PERAJARVI"));
-            //gameObjects.Add(GameObject.Find("REPAIRSHOP")); //Has to be loaded for repairs and such - Maybe fixable
             gameObjects.Add(GameObject.Find("RYKIPOHJA"));
             gameObjects.Add(GameObject.Find("SOCCER"));
             gameObjects.Add(GameObject.Find("WATERFACILITY"));
@@ -91,6 +90,8 @@ namespace KruFPS
             // Initialize Store class
             STORE = new Store();
             REPAIRSHOP = new RepairShop();
+
+            DRAGRACE = GameObject.Find("DRAGRACE");
 
             // Find house of Teimo and detach it from Perajarvi, so it can be loaded and unloaded separately
             // It shouldn't cause any issues, but that needs testing.
@@ -185,7 +186,7 @@ namespace KruFPS
             GameObject[] allObjects = Object.FindObjectsOfType<GameObject>();
             foreach (GameObject gameObject in allObjects)
                 foreach (string itemName in listOfMinorObjects)
-                    if (gameObject.name.Contains(itemName) && gameObject.name.ContainsAny("(itemx)", "(Clone)"))
+                    if (gameObject.name.Contains(itemName) && gameObject.name.ContainsAny("(itemx)", "(Clone)") && gameObject.activeSelf)
                         minorObjects.Add(gameObject);
 
             ModConsole.Print("[KruFPS] Found all objects");
@@ -210,6 +211,7 @@ namespace KruFPS
         Settings cabin = new Settings("cabin", "Unload the Cabin", false);
         Settings teimoshop = new Settings("teimoshop", "Teimo's Shop", false);
         Settings fleetarirepairshop = new Settings("fleetarirepairshop", "Fleetari Repair Shop", false);
+        Settings dragstrip = new Settings("dragstrip", "Dragstrip", false);
         Settings minorobjects = new Settings("minorObjects", "Minor objects (ex. beer cases, sausages...)", false);
         public override void ModSettings()
         {
@@ -229,6 +231,7 @@ namespace KruFPS
             Settings.AddCheckBox(this, minorobjects);
             Settings.AddCheckBox(this, teimoshop);
             Settings.AddCheckBox(this, fleetarirepairshop);
+            Settings.AddCheckBox(this, dragstrip);
             Settings.AddText(this, "Check this if you're not using the cabin.");
             Settings.AddCheckBox(this, cabin);
             Settings.AddHeader(this, "Graphics settings", Color.green);
@@ -390,6 +393,11 @@ namespace KruFPS
             if ((bool)fleetarirepairshop.GetValue() == true)
             {
                 REPAIRSHOP.EnableDisable(ShouldEnable(PLAYER.transform, REPAIRSHOP.transform));
+            }
+            if ((bool)dragstrip.GetValue() == true)
+            {
+                // Large distance ammount for Dragstrip, to let the script run, even on the second end of drag strip
+                EnableDisable(DRAGRACE, ShouldEnable(PLAYER.transform, DRAGRACE.transform, 1100));
             }
 
             //Away from house

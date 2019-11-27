@@ -54,8 +54,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Stores\RepairShop.cs" />
-    <Compile Include="Stores\Store.cs" />
+    <Compile Include="Places\DragRace.cs" />
+    <Compile Include="Places\RepairShop.cs" />
+    <Compile Include="Places\Place.cs" />
+    <Compile Include="Places\Store.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="Vehicles\Gifu.cs" />
     <Compile Include="Vehicles\Vehicle.cs" />
