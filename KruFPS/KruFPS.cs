@@ -255,7 +255,8 @@ namespace KruFPS
                 RUSKO.EnableDisable(true);
                 CABIN.SetActive(true);
                 KINEMATIC.isKinematic = true;
-
+                AXLES.enabled = true;
+                CAR_DYNAMICS.enabled = true;
                 foreach (GameObject item in minorObjects)
                 {
                     EnableDisable(item, true);
