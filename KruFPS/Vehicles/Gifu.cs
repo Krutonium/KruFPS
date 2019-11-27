@@ -15,16 +15,12 @@ namespace KruFPS
         Transform BeaconsParent;
         Transform Beacons;
 
-        GameObject TemporaryBeaconParent;
-
         /// <summary>
         /// Initialize class
         /// </summary>
         /// <param name="gameObject"></param>
         public Gifu(string gameObject) : base(gameObject)
         {
-            TemporaryBeaconParent = new GameObject(Object.name + "_TEMPBEACON");
-
             BeaconSwitchParent = Object.transform.Find("Dashboard").Find("Knobs");
             BeaconsParent = Object.transform.Find("LOD");
 
@@ -38,7 +34,6 @@ namespace KruFPS
         public new void EnableDisable(bool enabled)
         {
             if (Object == null) return;
-
             // Don't run the code, if the value is the same
             if (Object.activeSelf == enabled) return;
 
@@ -46,9 +41,14 @@ namespace KruFPS
             // We're doing that BEFORE we disable the object.
             if (!enabled)
             {
-                SetParentForChilds(AudioObjects, TemporaryAudioParent);
-                SetParentForChild(BeaconSwitch, TemporaryBeaconParent);
-                SetParentForChild(Beacons, TemporaryBeaconParent);
+                SetParentForChilds(AudioObjects, TemporaryParent);
+                if (FuelTank != null)
+                {
+                    SetParentForChild(FuelTank, TemporaryParent);
+                }
+                SetParentForChild(BeaconSwitch, TemporaryParent);
+                SetParentForChild(Beacons, TemporaryParent);
+
                 Position = Object.transform.localPosition;
                 Rotation = Object.transform.localRotation;
             }
@@ -61,7 +61,12 @@ namespace KruFPS
             {
                 Object.transform.localPosition = Position;
                 Object.transform.localRotation = Rotation;
+                
                 SetParentForChilds(AudioObjects, Object);
+                if (FuelTank != null)
+                {
+                    SetParentForChild(FuelTank, Object);
+                }
                 SetParentForChild(BeaconSwitch, BeaconSwitchParent.gameObject);
                 SetParentForChild(Beacons, BeaconsParent.gameObject);
             }

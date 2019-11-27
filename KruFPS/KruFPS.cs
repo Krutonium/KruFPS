@@ -18,7 +18,6 @@ namespace KruFPS
         private GameObject PLAYER;
         private GameObject YARD;
         private Vehicle SATSUMA;
-        private GameObject SATSUMA_2;
         private Vehicle FLATBED;
         private Gifu GIFU;
         private Vehicle HAYOSIKO;
@@ -46,7 +45,7 @@ namespace KruFPS
         private Store STORE;
         private RepairShop REPAIRSHOP;
 
-        // Objects that are further than others and needto be rendered earlier
+        // Objects that should be loaded from further distance, because it looks terrbile when they load at default value...
         List<GameObject> farGameObjects = new List<GameObject>();
 
         private static float DrawDistance = 420;
@@ -59,7 +58,6 @@ namespace KruFPS
             //Player Vehicles
             // For each vehicle in the game, a new instance of Vehicle class is initialized.
             SATSUMA = new Vehicle("SATSUMA(557kg, 248)");
-            SATSUMA_2 = GameObject.Find("SATSUMA(557kg, 248)");
             FLATBED = new Vehicle("FLATBED");
             GIFU = new Gifu("GIFU(750/450psi)");
             HAYOSIKO = new Vehicle("HAYOSIKO(1500kg, 250)");
@@ -68,8 +66,8 @@ namespace KruFPS
             RUSKO = new Vehicle("RCO_RUSCKO12(270)");
             FERNDALE = new Vehicle("FERNDALE(1630kg)");
             CABIN = GameObject.Find("CABIN");
-            AXLES = SATSUMA_2.GetComponent<Axles>();
-            CAR_DYNAMICS = SATSUMA_2.GetComponent<CarDynamics>();
+            AXLES = SATSUMA.Object.GetComponent<Axles>();
+            CAR_DYNAMICS = SATSUMA.Object.GetComponent<CarDynamics>();
             ModConsole.Print("Cars Done");
 
             //Locations and objects that can be enabled and disabled easily on proximity
@@ -86,7 +84,6 @@ namespace KruFPS
             gameObjects.Add(GameObject.Find("SOCCER"));
             gameObjects.Add(GameObject.Find("WATERFACILITY"));
             gameObjects.Add(GameObject.Find("KILJUGUY"));
-            gameObjects.Add(GameObject.Find("CHURCHWALL"));
             gameObjects.Add(GameObject.Find("TREES1_COLL"));
             gameObjects.Add(GameObject.Find("TREES2_COLL"));
             gameObjects.Add(GameObject.Find("TREES3_COLL"));
@@ -109,23 +106,48 @@ namespace KruFPS
             gameObjects.Add(TEIMO_HOUSE);
             gameObjects.Add(CHICKEN_HOUSE);
 
-            // Fix for disappearing grain processing plant
-            // https://my-summer-car.fandom.com/wiki/Grain_processing_plant
-            //
-            // It also puts them to farGameObjects - objects that are larger and need to be rendered from further distance
-            foreach (Transform trans in perajarvi.GetComponentsInChildren<Transform>())
-            {
-                if (trans.gameObject.name.Contains("silo"))
-                {
-                    trans.parent = null;
-                    farGameObjects.Add(trans.gameObject);
-                }
-            }
-
             // Chicken house (barn) close to player's house
             Transform playerChickenHouse = GameObject.Find("Buildings").transform.Find("ChickenHouse");
             playerChickenHouse.parent = null;
             gameObjects.Add(playerChickenHouse.gameObject);
+
+            // Fix for church wall. Changing it's parent to CHURCH, so it will loaded with all Perajarvi
+            GameObject.Find("CHURCHWALL").transform.parent = GameObject.Find("CHURCH").transform;
+
+            // Fix for old house on the way from Perajarvi to Ventti's house (HouseOld5)
+            Transform houseOld5 = perajarvi.transform.Find("HouseOld5");
+            houseOld5.parent = null;
+            gameObjects.Add(houseOld5.gameObject);
+
+            // Perajarvi fixes for multiple objects with the same name
+            foreach (Transform trans in perajarvi.GetComponentsInChildren<Transform>())
+            {
+                // Fix for disappearing grain processing plant
+                // https://my-summer-car.fandom.com/wiki/Grain_processing_plant
+                // It also puts them to farGameObjects - objects that are larger and need to be rendered from further distance
+                if (trans.gameObject.name.Contains("silo"))
+                {
+                    trans.parent = null;
+                    farGameObjects.Add(trans.gameObject);
+                    continue;
+                }
+
+                // Fix for Ventti's and Teimo's mailboxes (and pretty much all mailboxes that are inside of Perajarvi)
+                if (trans.gameObject.name == "MailBox")
+                {
+                    trans.parent = null;
+                    gameObjects.Add(trans.gameObject);
+                    continue;
+                }
+
+                // Fix for greenhouses on the road from Perajarvi to Ventti's house
+                if (trans.name == "Greenhouse")
+                {
+                    trans.parent = null;
+                    gameObjects.Add(trans.gameObject);
+                    continue;
+                }
+            }
 
             ModConsole.Print("GameObjects Done");
 
@@ -145,11 +167,12 @@ namespace KruFPS
             // May randomly fall through floor
 
             //TODO: 
-            // Figure out how to make repairs works at Fleetari's without loading it
+            // (*2) Figure out how to make repairs works at Fleetari's without loading it
             // (*1) Figure out how to trigger a restock at Tiemos on Thursdays without loading it.
 
             //NOTES:
             // (*1) Partially addressed the Teimo's issue, by unloading part of the shop
+            // (*2) Partially addressed the same way as for Teimo's shop
 
             //Camera.main.farClipPlane = (int)RenderDistance.Value; //Helps with lower end GPU's. This specific value. Any others are wrong.
             PLAYER = GameObject.Find("PLAYER");
