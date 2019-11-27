@@ -41,7 +41,7 @@ namespace KruFPS
         string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
         "empty plastic can", "fire extinguisher", "gasoline", "grill", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk",
         "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "ratchet set", "potato chips", "sausages", "sugar", "spanner set",
-        "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast" };
+        "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast", "shopping bag" };
 
         private Store STORE;
         private RepairShop REPAIRSHOP;
