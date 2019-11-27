@@ -54,8 +54,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Stores\RepairShop.cs" />
-    <Compile Include="Stores\Store.cs" />
+    <Compile Include="Places\RepairShop.cs" />
+    <Compile Include="Places\Place.cs" />
+    <Compile Include="Places\Store.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="Vehicles\Gifu.cs" />
     <Compile Include="Vehicles\Vehicle.cs" />
@@ -69,11 +70,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if "$(ConfigurationName)" == "Debug" (
-copy $(TargetPath) "D:\Steam\steamapps\common\My Summer Car\mods" /y
-copy "$(TargetDir)$(TargetName).pdb" "D:\Steam\steamapps\common\My Summer Car\mods"
-call "D:\Steam\steamapps\common\My Summer Car\mods\debug.bat"
+copy $(TargetPath) "C:\Users\aathl\Documents\MySummerCar\Mods" /y
+copy "$(TargetDir)$(TargetName).pdb" "C:\Users\aathl\Documents\MySummerCar\Mods\mods"
+call "C:\Users\aathl\Documents\MySummerCar\Mods\debug.bat"
 ) ELSE (
-copy $(TargetPath) "D:\Steam\steamapps\common\My Summer Car\mods" /y
+copy $(TargetPath) "C:\Users\aathl\Documents\MySummerCar\Mods" /y
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

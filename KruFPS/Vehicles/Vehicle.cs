@@ -21,8 +21,12 @@ namespace KruFPS
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
 
+        // All objects that cannot be unloaded (because it causes problems) land under that object
+        internal GameObject TemporaryParent;
+
+        // List of unloadable objects
         internal Transform[] AudioObjects;
-        internal GameObject TemporaryAudioParent;
+        internal Transform FuelTank;
 
         // Overwrites the "Component.transform", to prevent eventual mod crashes caused by missuse of Vehicle.transform.
         // Technically, you should use Vehicle.Object.transform (ex. GIFU.Object.Transform), this here just lets you use Vehicle.transform
@@ -42,10 +46,14 @@ namespace KruFPS
             Position = Object.transform.localPosition;
             Rotation = Object.transform.localRotation;
 
+            // Creates a new gameobject that is names after the original file + '_TEMP' (ex. "SATSUMA(557kg, 248)_TEMP")
+            TemporaryParent = new GameObject(Object.name + "_TEMP");
+
             // Get the object's child which are responsible for audio
             AudioObjects = GetAudioObjects();
-            // Creates a new gameobject that is names after the original file + '_TEMPAUDIO' (ex. SATSUMA(557kg, 248)_TEMPAUDIO)
-            TemporaryAudioParent = new GameObject(Object.name + "_TEMPAUDIO");
+
+            // Fix for fuel level resetting after respawn
+            FuelTank = FindFuelTank();
         }
 
         /// <summary>
@@ -72,7 +80,12 @@ namespace KruFPS
             // We're doing that BEFORE we disable the object.
             if (!enabled)
             {
-                SetParentForChilds(AudioObjects, TemporaryAudioParent);
+                SetParentForChilds(AudioObjects, TemporaryParent);
+                if (FuelTank != null)
+                {
+                    SetParentForChild(FuelTank, TemporaryParent);
+                }
+
                 Position = Object.transform.localPosition;
                 Rotation = Object.transform.localRotation;
             }
@@ -85,7 +98,12 @@ namespace KruFPS
             {
                 Object.transform.localPosition = Position;
                 Object.transform.localRotation = Rotation;
+
                 SetParentForChilds(AudioObjects, Object);
+                if (FuelTank != null)
+                {
+                    SetParentForChild(FuelTank, Object);
+                }
             }
         }
 
@@ -111,6 +129,20 @@ namespace KruFPS
         internal void SetParentForChild(Transform child, GameObject newParent)
         {
             child.transform.parent = newParent.transform;
+        }
+
+        /// <summary>
+        /// Looks for FuelTank object.
+        /// Returns null if it hasn't been found.
+        /// </summary>
+        internal Transform FindFuelTank()
+        {
+            if (Object.transform.Find("FuelTank") != null)
+            {
+                return Object.transform.Find("FuelTank");
+            }
+
+            return null;
         }
     }
 }
