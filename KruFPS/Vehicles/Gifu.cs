@@ -21,7 +21,7 @@ namespace KruFPS
         /// Initialize class
         /// </summary>
         /// <param name="gameObject"></param>
-        public Gifu(string gameObject) : base (gameObject)
+        public Gifu(string gameObject) : base(gameObject)
         {
             TemporaryBeaconParent = new GameObject(Object.name + "_TEMPBEACON");
 
@@ -37,36 +37,34 @@ namespace KruFPS
         /// </summary>
         public new void EnableDisable(bool enabled)
         {
-            try
+            if (Object == null) return;
+
+            // Don't run the code, if the value is the same
+            if (Object.activeSelf == enabled) return;
+
+            // If we're disabling a car, set the audio child parent to TemporaryAudioParent, and save the position and rotation.
+            // We're doing that BEFORE we disable the object.
+            if (!enabled)
             {
-                // Don't run the code, if the value is the same
-                if (Object.activeSelf == enabled) return;
-
-                // If we're disabling a car, set the audio child parent to TemporaryAudioParent, and save the position and rotation.
-                // We're doing that BEFORE we disable the object.
-                if (!enabled)
-                {
-                    SetParentForChilds(AudioObjects, TemporaryAudioParent);
-                    SetParentForChild(BeaconSwitch, TemporaryBeaconParent);
-                    SetParentForChild(Beacons, TemporaryBeaconParent);
-                    Position = Object.transform.localPosition;
-                    Rotation = Object.transform.localRotation;
-                }
-
-                Object.SetActive(enabled);
-
-                // Uppon enabling the file, set the localPosition and localRotation to the object's transform, and change audio source parents to Object
-                // We're doing that AFTER we enable the object.
-                if (enabled)
-                {
-                    Object.transform.localPosition = Position;
-                    Object.transform.localRotation = Rotation;
-                    SetParentForChilds(AudioObjects, Object);
-                    SetParentForChild(BeaconSwitch, BeaconSwitchParent.gameObject);
-                    SetParentForChild(Beacons, BeaconsParent.gameObject);
-                }
+                SetParentForChilds(AudioObjects, TemporaryAudioParent);
+                SetParentForChild(BeaconSwitch, TemporaryBeaconParent);
+                SetParentForChild(Beacons, TemporaryBeaconParent);
+                Position = Object.transform.localPosition;
+                Rotation = Object.transform.localRotation;
             }
-            catch { }
+
+            Object.SetActive(enabled);
+
+            // Uppon enabling the file, set the localPosition and localRotation to the object's transform, and change audio source parents to Object
+            // We're doing that AFTER we enable the object.
+            if (enabled)
+            {
+                Object.transform.localPosition = Position;
+                Object.transform.localRotation = Rotation;
+                SetParentForChilds(AudioObjects, Object);
+                SetParentForChild(BeaconSwitch, BeaconSwitchParent.gameObject);
+                SetParentForChild(Beacons, BeaconsParent.gameObject);
+            }
         }
     }
 }

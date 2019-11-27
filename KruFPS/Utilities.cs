@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KruFPS
+﻿namespace KruFPS
 {
     static class Utilities
     {
@@ -15,10 +10,12 @@ namespace KruFPS
         /// <returns></returns>
         public static bool ContainsAny(this string lookIn, params string[] lookFor)
         {
-            foreach (string sample in lookFor)
+            for (int i = 0; i < lookFor.Length; i++)
+            {
                 // Value found? Return true.
-                if (lookIn.Contains(sample))
+                if (lookIn.Contains(lookFor[i]))
                     return true;
+            }
 
             // Nothing has been found? Return false.
             return false;
