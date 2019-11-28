@@ -34,18 +34,8 @@ namespace KruFPS
         private GameObject DRAGRACE;
         //private List<GameObject> Cars;
 
-        List<GameObject> minorObjects = new List<GameObject>();
-        // List of all whitelisted objects that can appear on the minorObjects list
-        // Note: batteries aren't included
-
-        string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
-        "empty plastic can", "fire extinguisher", "gasoline", "grill", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk",
-        "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "ratchet set", "potato chips", "sausages", "sugar", "spanner set",
-        "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast", "shopping bag", "flashlight" };
-
         private Store STORE;
         private RepairShop REPAIRSHOP;
-        //private DragRace DRAGRACE;
 
         // Objects that should be loaded from further distance, because it looks terrbile when they load at default value...
         List<GameObject> farGameObjects = new List<GameObject>();
@@ -83,7 +73,7 @@ namespace KruFPS
             gameObjects.Add(GameObject.Find("RYKIPOHJA"));
             gameObjects.Add(GameObject.Find("SOCCER"));
             gameObjects.Add(GameObject.Find("WATERFACILITY"));
-            gameObjects.Add(GameObject.Find("KILJUGUY"));
+            //gameObjects.Add(GameObject.Find("KILJUGUY"));
             gameObjects.Add(GameObject.Find("TREES1_COLL"));
             gameObjects.Add(GameObject.Find("TREES2_COLL"));
             gameObjects.Add(GameObject.Find("TREES3_COLL"));
@@ -114,7 +104,8 @@ namespace KruFPS
             gameObjects.Add(playerChickenHouse.gameObject);
 
             // Fix for church wall. Changing it's parent to CHURCH, so it will loaded with all Perajarvi
-            GameObject.Find("CHURCHWALL").transform.parent = GameObject.Find("CHURCH").transform;
+            //GameObject.Find("CHURCHWALL").transform.parent = GameObject.Find("CHURCH").transform;
+            GameObject.Find("CHURCHWALL").transform.parent = null;
 
             // Fix for old house on the way from Perajarvi to Ventti's house (HouseOld5)
             Transform houseOld5 = perajarvi.transform.Find("HouseOld5");
@@ -151,6 +142,13 @@ namespace KruFPS
                 }
             }
 
+            // Possible fix for Jokke.
+            // Needs testing
+            foreach (Transform trans in GameObject.Find("KILJUGUY").transform.GetComponentsInChildren<Transform>())
+            {
+                gameObjects.Add(trans.gameObject);
+            }
+
             ModConsole.Print("GameObjects Done");
 
             //Things that should be enabled when out of proximity of the house
@@ -181,14 +179,7 @@ namespace KruFPS
             YARD = GameObject.Find("YARD");                     //Used to find out how far the player is from the Object
             KINEMATIC = SATSUMA.Object.GetComponent<Rigidbody>();
 
-            // Get all minor objects from the game world (like beer cases, sausages)
-            // Only items that are in the listOfMinorObjects list, and also contain "(itemx)" in their name will be loaded
-            // UPDATED: added support for (Clone) items
-            GameObject[] allObjects = Object.FindObjectsOfType<GameObject>();
-            foreach (GameObject gameObject in allObjects)
-                foreach (string itemName in listOfMinorObjects)
-                    if (gameObject.name.Contains(itemName) && gameObject.name.ContainsAny("(itemx)", "(Clone)") && gameObject.activeSelf)
-                        minorObjects.Add(gameObject);
+            new MinorObjects();
 
             ModConsole.Print("[KruFPS] Found all objects");
             DrawDistance = float.Parse(RenderDistance.GetValue().ToString()); //Update saved draw distance variable
@@ -284,7 +275,7 @@ namespace KruFPS
                 KINEMATIC.isKinematic = true;
                 AXLES.enabled = true;
                 CAR_DYNAMICS.enabled = true;
-                foreach (GameObject item in minorObjects)
+                foreach (GameObject item in MinorObjects.instance.minorObjects)
                 {
                     EnableDisable(item, true);
                 }
@@ -308,6 +299,17 @@ namespace KruFPS
         float timer = 0.0f;
         public override void Update()
         {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                STORE.EnableDisable(false);
+            }
+
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                STORE.EnableDisable(true);
+            }
+
+
             timer += Time.deltaTime;
             float seconds = (timer % 60);
             if (seconds <= 1f) return; 
@@ -382,14 +384,14 @@ namespace KruFPS
             }
             if ((bool)minorobjects.GetValue() == true)
             {
-                for (int i = 0; i < minorObjects.Count; i++)
+                for (int i = 0; i < MinorObjects.instance.minorObjects.Count; i++)
                 {
-                    EnableDisable(minorObjects[i], ShouldEnable(PLAYER.transform, minorObjects[i].transform));
+                    EnableDisable(MinorObjects.instance.minorObjects[i], ShouldEnable(PLAYER.transform, MinorObjects.instance.minorObjects[i].transform));
                 }
             }
             if ((bool)teimoshop.GetValue() == true)
             {
-                STORE.EnableDisable(ShouldEnable(PLAYER.transform, STORE.transform));
+                //STORE.EnableDisable(ShouldEnable(PLAYER.transform, STORE.transform));
             }
             if ((bool)fleetarirepairshop.GetValue() == true)
             {
