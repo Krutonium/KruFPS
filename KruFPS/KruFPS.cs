@@ -272,7 +272,7 @@ namespace KruFPS
                 KEKMET.EnableDisable(true);
                 RUSKO.EnableDisable(true);
                 CABIN.SetActive(true);
-                KINEMATIC.isKinematic = true;
+                KINEMATIC.isKinematic = false;
                 AXLES.enabled = true;
                 CAR_DYNAMICS.enabled = true;
                 foreach (GameObject item in MinorObjects.instance.minorObjects)
