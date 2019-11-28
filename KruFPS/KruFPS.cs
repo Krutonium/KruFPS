@@ -299,17 +299,6 @@ namespace KruFPS
         float timer = 0.0f;
         public override void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                STORE.EnableDisable(false);
-            }
-
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                STORE.EnableDisable(true);
-            }
-
-
             timer += Time.deltaTime;
             float seconds = (timer % 60);
             if (seconds <= 1f) return; 
@@ -391,7 +380,7 @@ namespace KruFPS
             }
             if ((bool)teimoshop.GetValue() == true)
             {
-                //STORE.EnableDisable(ShouldEnable(PLAYER.transform, STORE.transform));
+                STORE.EnableDisable(ShouldEnable(PLAYER.transform, STORE.transform));
             }
             if ((bool)fleetarirepairshop.GetValue() == true)
             {
