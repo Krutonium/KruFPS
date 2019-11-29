@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace KruFPS
+﻿namespace KruFPS
 {
     class RepairShop : Place
     {
@@ -25,7 +23,7 @@ namespace KruFPS
         /// </summary>
         public RepairShop() : base("REPAIRSHOP")
         {
-            GameObjectWhiteList.AddRange(whiteList);
+            GameObjectWhiteList = whiteList;
             Childs = GetAllChilds();
         }
     }

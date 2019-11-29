@@ -14,7 +14,9 @@
             {
                 // Value found? Return true.
                 if (lookIn.Contains(lookFor[i]))
+                {
                     return true;
+                }
             }
 
             // Nothing has been found? Return false.
