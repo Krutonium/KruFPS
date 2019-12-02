@@ -54,7 +54,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MinorObjects\MinorObjectsHook.cs" />
+    <Compile Include="MinorObjects\GameObjects.cs" />
+    <Compile Include="MinorObjects\ObjectHook.cs" />
+    <Compile Include="MinorObjects\CashRegisterHook.cs" />
     <Compile Include="MinorObjects\MinorObjects.cs" />
     <Compile Include="Places\RepairShop.cs" />
     <Compile Include="Places\Place.cs" />

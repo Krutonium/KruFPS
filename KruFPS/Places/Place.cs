@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace KruFPS
 {
@@ -15,7 +14,7 @@ namespace KruFPS
 
         // Objects from that whitelist will not be disabled
         // It is so to prevent from restock script and Teimo's bike routine not working
-        internal string[] GameObjectWhiteList;
+        internal string[] GameObjectBlackList;
 
         /// <summary>
         /// Here are all childs of Store gameobject
@@ -49,9 +48,9 @@ namespace KruFPS
             // Load and unload only the objects that aren't on the whitelist.
             for (int i = 0; i < Childs.Length; i++)
             {
-                if (GameObjectWhiteList.Length > 0)
+                if (GameObjectBlackList.Length > 0)
                 {
-                    if (!Childs[i].gameObject.name.ContainsAny(GameObjectWhiteList))
+                    if (!Childs[i].gameObject.name.ContainsAny(GameObjectBlackList))
                     {
                         Childs[i].gameObject.SetActive(enabled);
                     }

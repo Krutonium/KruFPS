@@ -1,55 +1,77 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace KruFPS
 {
     class MinorObjects
     {
-        public List<GameObject> minorObjects = new List<GameObject>();
         // List of all whitelisted objects that can appear on the minorObjects list
         // Note: batteries aren't included
-
-        public string[] listOfMinorObjects = {"ax", "beer case", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
+        public string[] listOfMinorObjects = {"ax", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
         "empty plastic can", "fire extinguisher", "gasoline", "grill", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk",
         "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "ratchet set", "potato chips", "sausages", "sugar", "spanner set",
-        "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast", "shopping bag", "flashlight" };
+        "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast", "shopping bag", "flashlight", "beer case" };
+
+        // List of ObjectHooks attached to minor objects
+        public List<ObjectHook> ObjectHooks = new List<ObjectHook>();
 
         public static MinorObjects instance;
 
+        /// <summary>
+        /// Initialize MinorObjects class
+        /// </summary>
         public MinorObjects()
         {
             instance = this;
-            RefreshMinorObjectsList();
-            HookMinorObjectsListRefresh();
+            LoadList();
+            HookCashRegister();
         }
 
-        private void RefreshMinorObjectsList()
+        /// <summary>
+        /// Add object hook to the list
+        /// </summary>
+        /// <param name="newHook"></param>
+        public void Add(ObjectHook newHook)
         {
-            // Get all minor objects from the game world (like beer cases, sausages)
-            // Only items that are in the listOfMinorObjects list, and also contain "(itemx)" in their name will be loaded
-            // UPDATED: added support for (Clone) items
+            ObjectHooks.Add(newHook);
+        }
 
-            minorObjects.Clear();
-
-            GameObject[] allObjects = Object.FindObjectsOfType<GameObject>();
-            for (int i = 0; i < allObjects.Length; i++)
+        /// <summary>
+        /// Remove object hook from the list
+        /// </summary>
+        /// <param name="objectHook"></param>
+        public void Remove(ObjectHook objectHook)
+        {
+            if (ObjectHooks.Contains(objectHook))
             {
-                for (int j = 0; j < listOfMinorObjects.Length; j++)
-                {
-                    if (allObjects[i].name.Contains(listOfMinorObjects[j])
-                        && allObjects[i].name.ContainsAny("(itemx)", "(Clone)")
-                        && allObjects[i].activeSelf)
-                    {
-                        minorObjects.Add(allObjects[i]);
-                    }
-                }
+                ObjectHooks.Remove(objectHook);
             }
         }
 
-        private void HookMinorObjectsListRefresh()
+        /// <summary>
+        /// Refreshes the list of all known minor objects in the game
+        /// </summary>
+        public void LoadList()
         {
-            // Hook refresh class to cash register
-            GameObject.Find("STORE/StoreCashRegister/Register").AddComponent<MinorObjectsHook>();
+            // Get all minor objects from the game world (like beer cases, sausages)
+            // Only items that are in the listOfMinorObjects list, and also contain "(itemx)" in their name will be loaded
+
+            GameObject[] minorObjects = Object.FindObjectsOfType<GameObject>()
+                .Where(gm => gm.name.ContainsAny(listOfMinorObjects) && gm.name.ContainsAny("(itemx)", "(Clone)") && gm.activeSelf).ToArray();
+
+            for (int i = 0; i < minorObjects.Length; i++)
+            {
+                minorObjects[i].AddComponent<ObjectHook>();
+            }
+        }
+
+        /// <summary>
+        /// Hooks MinorObjectsHook to Register GameObject
+        /// </summary>
+        private void HookCashRegister()
+        {
+            GameObject.Find("STORE/StoreCashRegister/Register").AddComponent<CashRegisterHook>();
         }
     }
 }

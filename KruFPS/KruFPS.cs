@@ -29,19 +29,18 @@ namespace KruFPS
         private Rigidbody KINEMATIC;
         private CarDynamics CAR_DYNAMICS;
         private Axles AXLES;
-        private List<GameObject> gameObjects;
-        private List<GameObject> awayFromHouse;
         private GameObject DRAGRACE;
         //private List<GameObject> Cars;
 
         private Store STORE;
         private RepairShop REPAIRSHOP;
 
+        private List<GameObject> gameObjects;
+        private List<GameObject> awayFromHouse;
         // Objects that should be loaded from further distance, because it looks terrbile when they load at default value...
         List<GameObject> farGameObjects = new List<GameObject>();
 
         private static float DrawDistance = 420;
-
 
         public override void OnLoad()
         {
@@ -73,7 +72,6 @@ namespace KruFPS
             gameObjects.Add(GameObject.Find("RYKIPOHJA"));
             gameObjects.Add(GameObject.Find("SOCCER"));
             gameObjects.Add(GameObject.Find("WATERFACILITY"));
-            //gameObjects.Add(GameObject.Find("KILJUGUY"));
             gameObjects.Add(GameObject.Find("TREES1_COLL"));
             gameObjects.Add(GameObject.Find("TREES2_COLL"));
             gameObjects.Add(GameObject.Find("TREES3_COLL"));
@@ -137,7 +135,7 @@ namespace KruFPS
                 if (trans.name == "Greenhouse")
                 {
                     trans.parent = null;
-                    gameObjects.Add(trans.gameObject);
+                    farGameObjects.Add(trans.gameObject);
                     continue;
                 }
             }
@@ -148,6 +146,9 @@ namespace KruFPS
             {
                 gameObjects.Add(trans.gameObject);
             }
+
+            // Removes the mansion from list 
+            GameObject.Find("autiotalo").transform.parent = null;
 
             ModConsole.Print("GameObjects Done");
 
@@ -160,6 +161,7 @@ namespace KruFPS
             awayFromHouse.Add(GameObject.Find("Buildings"));
             awayFromHouse.Add(GameObject.Find("TrafficSigns"));
             awayFromHouse.Add(GameObject.Find("ELEC_POLES"));
+            awayFromHouse.Add(GameObject.Find("StreetLights"));
 
             //TODO: Solve Bugs from Unloading/Reloading Satsuma
             // Bugs: 
@@ -275,9 +277,9 @@ namespace KruFPS
                 KINEMATIC.isKinematic = false;
                 AXLES.enabled = true;
                 CAR_DYNAMICS.enabled = true;
-                foreach (GameObject item in MinorObjects.instance.minorObjects)
+                foreach (ObjectHook item in MinorObjects.instance.ObjectHooks)
                 {
-                    EnableDisable(item, true);
+                    EnableDisable(item.gm, true);
                 }
 
                 STORE.EnableDisable(true);
@@ -292,10 +294,6 @@ namespace KruFPS
             Debug.Log("[KruFPS] Prepare for save finished!");
         }
 
-        public override void OnGUI()
-        {
-            // Draw unity OnGUI() here
-        }
         float timer = 0.0f;
         public override void Update()
         {
@@ -306,7 +304,6 @@ namespace KruFPS
 
             //if we are here, one second passed so reset timer and do rest of the code.
             timer = 0f;
-
 
             Camera.main.farClipPlane = DrawDistance;
 
@@ -373,9 +370,10 @@ namespace KruFPS
             }
             if ((bool)minorobjects.GetValue() == true)
             {
-                for (int i = 0; i < MinorObjects.instance.minorObjects.Count; i++)
+                for (int i = 0; i < MinorObjects.instance.ObjectHooks.Count; i++)
                 {
-                    EnableDisable(MinorObjects.instance.minorObjects[i], ShouldEnable(PLAYER.transform, MinorObjects.instance.minorObjects[i].transform));
+                    MinorObjects.instance.ObjectHooks[i].EnableDisable(
+                        ShouldEnable(PLAYER.transform, MinorObjects.instance.ObjectHooks[i].gm.transform));
                 }
             }
             if ((bool)teimoshop.GetValue() == true)
@@ -411,18 +409,19 @@ namespace KruFPS
 
         private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 200)
         {
-
             //This determines if somthing should be enabled or not - Returning FALSE means that the object should be Disabled, and inversely
             // if it returns TRUE the object should be Enabled.
-
             float distance = Vector3.Distance(player.position, target.position);
+            //float distance = (player.position - target.position).sqrMagnitude;
             return distance < distanceTarget;
         }
+
         private float Distance(Transform player, Transform target)
         {
             //Gets Distance.
             return Vector3.Distance(player.position, target.position);
         }
+
         private void EnableDisable(GameObject thing, bool enabled)
         {
             if (thing != null && thing.activeSelf != enabled)
@@ -430,3 +429,4 @@ namespace KruFPS
         }
     }
 }
+
