@@ -31,9 +31,13 @@ namespace KruFPS
             StartCoroutine(currentRoutine);
         }
 
+        /// <summary>
+        /// Injects the newly bought store items.
+        /// </summary>
+        /// <returns></returns>
         IEnumerator PurchaseCoroutine()
         {
-            // Wait for few seconds to let all objects to spawn
+            // Wait for few seconds to let all objects to spawn, and then inject the objects.
             yield return new WaitForSeconds(2);
             InjectNewItems();
             currentRoutine = null;
@@ -47,12 +51,14 @@ namespace KruFPS
         {
             // Find shopping bags in the list
             GameObject[] items = FindObjectsOfType<GameObject>()
-                .Where(gm => gm.name.ContainsAny(MinorObjects.instance.listOfMinorObjects) && gm.name.ContainsAny("(itemx)", "(Clone)")).ToArray();
+                .Where(gm => gm.name.ContainsAny(MinorObjects.instance.listOfMinorObjects) && gm.name.ContainsAny("(itemx)", "(Clone)"))
+                .ToArray();
 
             if (items.Length > 0)
             {
                 for (int i = 0; i < items.Length; i++)
                 {
+                    // Object already ObjectHook attached? Ignore it.
                     if (items[i].GetComponent<ObjectHook>() != null)
                         continue;
 

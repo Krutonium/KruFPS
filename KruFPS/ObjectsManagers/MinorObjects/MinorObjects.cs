@@ -8,7 +8,7 @@ namespace KruFPS
     {
         // List of all whitelisted objects that can appear on the minorObjects list
         // Note: batteries aren't included
-        public string[] listOfMinorObjects = {"ax", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
+        public string[] listOfMinorObjects = { "ax", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",
         "empty plastic can", "fire extinguisher", "gasoline", "grill", "grill charcoal", "ground coffee", "juice", "kilju", "lamp", "macaronbox", "milk",
         "moosemeat", "mosquito spray", "motor oil", "oilfilter", "pike", "pizza", "ratchet set", "potato chips", "sausages", "sugar", "spanner set",
         "spray can", "two stroke fuel", "wiring mess", "wood carrier", "yeast", "shopping bag", "flashlight", "beer case" };
@@ -24,7 +24,7 @@ namespace KruFPS
         public MinorObjects()
         {
             instance = this;
-            LoadList();
+            InitializeList();
             HookCashRegister();
         }
 
@@ -50,9 +50,10 @@ namespace KruFPS
         }
 
         /// <summary>
-        /// Refreshes the list of all known minor objects in the game
+        /// Lists all the game objects in the game's world and that are on the whitelist,
+        /// then it adds ObjectHook to them
         /// </summary>
-        public void LoadList()
+        void InitializeList()
         {
             // Get all minor objects from the game world (like beer cases, sausages)
             // Only items that are in the listOfMinorObjects list, and also contain "(itemx)" in their name will be loaded
@@ -67,7 +68,7 @@ namespace KruFPS
         }
 
         /// <summary>
-        /// Hooks MinorObjectsHook to Register GameObject
+        /// Hooks CashRegisterHook to Register GameObject
         /// </summary>
         private void HookCashRegister()
         {

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace KruFPS
 {
@@ -20,6 +21,8 @@ namespace KruFPS
         /// Here are all childs of Store gameobject
         /// </summary>
         internal Transform[] Childs;
+
+        internal Transform[] DisableableChilds;
 
         public Transform transform => Object.transform;
 
@@ -46,19 +49,9 @@ namespace KruFPS
             lastValue = enabled;
 
             // Load and unload only the objects that aren't on the whitelist.
-            for (int i = 0; i < Childs.Length; i++)
+            for (int i = 0; i < DisableableChilds.Length; i++)
             {
-                if (GameObjectBlackList.Length > 0)
-                {
-                    if (!Childs[i].gameObject.name.ContainsAny(GameObjectBlackList))
-                    {
-                        Childs[i].gameObject.SetActive(enabled);
-                    }
-                }
-                else
-                {
-                    Childs[i].gameObject.SetActive(enabled);
-                }
+                DisableableChilds[i].gameObject.SetActive(enabled);
             }
         }
 
@@ -68,7 +61,12 @@ namespace KruFPS
         /// <returns></returns>
         internal Transform[] GetAllChilds()
         {
-            return Object.transform.GetComponentsInChildren<Transform>();
+            return Object.transform.GetComponentsInChildren<Transform>(true);
+        }
+
+        internal Transform[] GetDisableableChilds()
+        {
+            return Childs.Where(trans => !trans.gameObject.name.ContainsAny(GameObjectBlackList)).ToArray();
         }
     }
 }

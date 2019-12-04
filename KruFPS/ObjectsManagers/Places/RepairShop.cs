@@ -15,8 +15,10 @@
         // Objects from that whitelist will not be disabled
         // It is so to prevent from restock script and Teimo's bike routine not working
         string[] blackList = { "REPAIRSHOP", "JunkCar", "sats_burn_masse", "TireOld(Clone)", "Order", "JunkYardJob",
-                                        "BoozeJob", "Spawn", "SatsumaSpawns", "SeatPivot", "DistanceTarget", "SpawnToRepair",
-                                        "PartsDistanceTarget", "JunkCarSpawns" };
+                                "BoozeJob", "Spawn", "SatsumaSpawns", "SeatPivot", "DistanceTarget", "SpawnToRepair",
+                                "PartsDistanceTarget", "JunkCar4", "JunkCarSpawns", "Parts", "wheel_regul", "rpm gauge(Clone)", 
+                                "Hook", "Jobs", "GearRatios", "Fix", "fix", "Job", "Polish", "Wheel", "Fill", "Rollcage", 
+                                "Adjust", "GearLinkage", "Paintjob", "Windshield", "ToeAdjust", "Brakes"  };
 
         /// <summary>
         /// Initialize the RepairShop class
@@ -25,6 +27,7 @@
         {
             GameObjectBlackList = blackList;
             Childs = GetAllChilds();
+            DisableableChilds = GetDisableableChilds();
         }
     }
 }

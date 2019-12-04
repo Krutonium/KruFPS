@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using MSCLoader;
+using System.Collections;
 
 namespace KruFPS
 {
@@ -22,6 +23,11 @@ namespace KruFPS
         /// Stores the current state of an object.
         /// </summary>
         bool currentState;
+
+        /// <summary>
+        /// Special fixes are applied for beer cases
+        /// </summary>
+        bool isBeerCase;
 
         public ObjectHook()
         {
@@ -55,6 +61,8 @@ namespace KruFPS
                         break;
                 }
             }
+
+            isBeerCase = gm.name.Contains("beer case");
         }
 
         // Triggered before the object is destroyed.
@@ -74,14 +82,28 @@ namespace KruFPS
             // Beer cases are treated differently.
             // Instead of disabling entire object, change it's rigibdody values, to prevent them from landing under vehicles.
             // It fixes the problems with bottles in beer cases disappearing.
-            if (gm.name.Contains("beer case"))
+            if (isBeerCase)
             {
                 rb.detectCollisions = enabled;
                 rb.isKinematic = !enabled;
+
+                // Fix for Carry More mod
+                // Beer cases for some reason tend to have detectCollisions disabled uppon reenabling.
+                // This code launches the BeerCasePositionFix() coroutine, in order to fix that, if the object is reenabled.
+                if (enabled)
+                {
+                    if (currentBeerCasePositionFix != null)
+                        return;
+
+                    currentBeerCasePositionFix = BeerCasePositionFix();
+                    StartCoroutine(currentBeerCasePositionFix);
+                }
+                
                 return;
             }
 
-            // Fix for Carry More mod
+            // Fix for Carry More mod.
+            // Carry More mod enables the Rigidbody.isKinematic value, when the object is added to the inventory.
             if (rb.isKinematic)
                 return;
 
@@ -105,6 +127,32 @@ namespace KruFPS
                 gm.transform.position = position;
                 gm.transform.rotation = rotation;
             }
+        }
+        
+        // Current instance of BeerCasePositionFix
+        private IEnumerator currentBeerCasePositionFix;
+
+        /// <summary>
+        /// A fix for when the beer case may sometimes clip through the floor.
+        /// If the distance between the saved position and the current position is greater than 2,
+        /// teleport the object to the saved position.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerator BeerCasePositionFix()
+        {
+            Vector3 pos = gm.transform.position;
+            Quaternion rot = gm.transform.rotation;
+
+            yield return new WaitForSeconds(1);
+
+            if (Vector3.Distance(pos, gm.transform.position) > 2)
+            {
+                pos.y += 3; // add 3 units to the Y value, to prevent the item from appearing in the same place again.
+                gm.transform.position = pos;
+                gm.transform.rotation = rot;
+            }
+
+            currentBeerCasePositionFix = null;
         }
     }
 }
