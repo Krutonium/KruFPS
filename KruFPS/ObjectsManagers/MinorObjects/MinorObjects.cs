@@ -6,6 +6,8 @@ namespace KruFPS
 {
     class MinorObjects
     {
+        // MinorObjects class by Konrad "Athlon" Figura
+
         // List of all whitelisted objects that can appear on the minorObjects list
         // Note: batteries aren't included
         public string[] listOfMinorObjects = { "ax", "booze", "brake fluid", "cigarettes", "coffee pan", "coffee cup", "coolant", "diesel",

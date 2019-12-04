@@ -7,6 +7,7 @@ namespace KruFPS
     class ObjectHook : MonoBehaviour
     {
         // This MonoBehaviour hooks to all minor objects.
+        // ObjectHook class by Konrad "Athlon" Figura
 
         public GameObject gm => this.gameObject;
         PlayMakerFSM playMakerFSM;

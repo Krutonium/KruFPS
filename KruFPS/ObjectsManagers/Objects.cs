@@ -4,6 +4,8 @@ namespace KruFPS
 {
     class Objects
     {
+        // Objects class by Konrad "Athlon" Figura
+
         /// <summary>
         /// Game object that this instance of the class controls.
         /// </summary>

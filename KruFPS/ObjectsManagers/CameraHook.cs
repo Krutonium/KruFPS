@@ -4,6 +4,8 @@ namespace KruFPS
 {
     class CameraHook : MonoBehaviour
     {
+        // CameraHook class by Konrad "Athlon" Figura
+
         // Currently not used
         //
         // Hooks to Camera.main

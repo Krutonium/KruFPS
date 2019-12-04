@@ -8,6 +8,7 @@ namespace KruFPS
     class CashRegisterHook : MonoBehaviour
     {
         // This MonoBehaviour hooks to CashRegister GameObject
+        // CashRegisterHook class by Konrad "Athlon" Figura
 
         IEnumerator currentRoutine;
 

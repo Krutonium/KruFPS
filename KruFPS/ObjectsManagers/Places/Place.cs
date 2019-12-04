@@ -11,6 +11,8 @@ namespace KruFPS
         //
         // NOTE: That script DOES NOT disable the store itself, rather some of its childrens.
 
+        // Place class by Konrad "Athlon" Figura
+
         public GameObject Object { get; set; }
 
         // Objects from that whitelist will not be disabled
