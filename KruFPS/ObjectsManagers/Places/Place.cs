@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace KruFPS
@@ -11,16 +11,20 @@ namespace KruFPS
         //
         // NOTE: That script DOES NOT disable the store itself, rather some of its childrens.
 
+        // Place class by Konrad "Athlon" Figura
+
         public GameObject Object { get; set; }
 
         // Objects from that whitelist will not be disabled
         // It is so to prevent from restock script and Teimo's bike routine not working
-        internal string[] GameObjectWhiteList;
+        internal string[] GameObjectBlackList;
 
         /// <summary>
         /// Here are all childs of Store gameobject
         /// </summary>
         internal Transform[] Childs;
+
+        internal Transform[] DisableableChilds;
 
         public Transform transform => Object.transform;
 
@@ -47,19 +51,9 @@ namespace KruFPS
             lastValue = enabled;
 
             // Load and unload only the objects that aren't on the whitelist.
-            for (int i = 0; i < Childs.Length; i++)
+            for (int i = 0; i < DisableableChilds.Length; i++)
             {
-                if (GameObjectWhiteList.Length > 0)
-                {
-                    if (!Childs[i].gameObject.name.ContainsAny(GameObjectWhiteList))
-                    {
-                        Childs[i].gameObject.SetActive(enabled);
-                    }
-                }
-                else
-                {
-                    Childs[i].gameObject.SetActive(enabled);
-                }
+                DisableableChilds[i].gameObject.SetActive(enabled);
             }
         }
 
@@ -69,7 +63,12 @@ namespace KruFPS
         /// <returns></returns>
         internal Transform[] GetAllChilds()
         {
-            return Object.transform.GetComponentsInChildren<Transform>();
+            return Object.transform.GetComponentsInChildren<Transform>(true);
+        }
+
+        internal Transform[] GetDisableableChilds()
+        {
+            return Childs.Where(trans => !trans.gameObject.name.ContainsAny(GameObjectBlackList)).ToArray();
         }
     }
 }

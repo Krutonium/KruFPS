@@ -54,14 +54,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MinorObjects\MinorObjectsHook.cs" />
-    <Compile Include="MinorObjects\MinorObjects.cs" />
-    <Compile Include="Places\RepairShop.cs" />
-    <Compile Include="Places\Place.cs" />
-    <Compile Include="Places\Store.cs" />
+    <Compile Include="ObjectsManagers\CameraHook.cs" />
+    <Compile Include="ObjectsManagers\Objects.cs" />
+    <Compile Include="ObjectsManagers\MinorObjects\ObjectHook.cs" />
+    <Compile Include="ObjectsManagers\MinorObjects\CashRegisterHook.cs" />
+    <Compile Include="ObjectsManagers\MinorObjects\MinorObjects.cs" />
+    <Compile Include="ObjectsManagers\Places\RepairShop.cs" />
+    <Compile Include="ObjectsManagers\Places\Place.cs" />
+    <Compile Include="ObjectsManagers\Places\Store.cs" />
     <Compile Include="Utilities.cs" />
-    <Compile Include="Vehicles\Gifu.cs" />
-    <Compile Include="Vehicles\Vehicle.cs" />
+    <Compile Include="ObjectsManagers\Vehicles\Gifu.cs" />
+    <Compile Include="ObjectsManagers\Vehicles\Vehicle.cs" />
     <Compile Include="KruFPS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

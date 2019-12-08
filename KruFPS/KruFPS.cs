@@ -9,7 +9,7 @@ namespace KruFPS
         public override string ID => "KruFPS"; //Your mod ID (unique)
         public override string Name => "KruFPS"; //You mod name
         public override string Author => "Krutonium"; //Your Username
-        public override string Version => "3.0"; //Version
+        public override string Version => "4.0"; //Version
 
         // Set this to true if you will be load custom assets from Assets folder.
         // This will create subfolder in Assets folder for your mod.
@@ -29,23 +29,19 @@ namespace KruFPS
         private Rigidbody KINEMATIC;
         private CarDynamics CAR_DYNAMICS;
         private Axles AXLES;
-        private List<GameObject> gameObjects;
-        private List<GameObject> awayFromHouse;
-        private GameObject DRAGRACE;
-        //private List<GameObject> Cars;
 
         private Store STORE;
         private RepairShop REPAIRSHOP;
 
+        private List<Objects> gameObjects;
         // Objects that should be loaded from further distance, because it looks terrbile when they load at default value...
-        List<GameObject> farGameObjects = new List<GameObject>();
+        //List<GameObject> farGameObjects = new List<GameObject>();
 
         private static float DrawDistance = 420;
 
-
         public override void OnLoad()
         {
-            gameObjects = new List<GameObject>();
+            gameObjects = new List<Objects>();
 
             //Player Vehicles
             // For each vehicle in the game, a new instance of Vehicle class is initialized.
@@ -64,80 +60,68 @@ namespace KruFPS
             ModConsole.Print("Cars Done");
 
             //Locations and objects that can be enabled and disabled easily on proximity
-            gameObjects.Add(GameObject.Find("BOAT")); //Boat is not a Car, oddly enough.
-            gameObjects.Add(GameObject.Find("COTTAGE"));
-            gameObjects.Add(GameObject.Find("DANCEHALL"));
-            gameObjects.Add(GameObject.Find("INSPECTION"));
-            gameObjects.Add(GameObject.Find("LANDFILL"));
-            gameObjects.Add(GameObject.Find("PERAJARVI"));
-            gameObjects.Add(GameObject.Find("RYKIPOHJA"));
-            gameObjects.Add(GameObject.Find("SOCCER"));
-            gameObjects.Add(GameObject.Find("WATERFACILITY"));
-            //gameObjects.Add(GameObject.Find("KILJUGUY"));
-            gameObjects.Add(GameObject.Find("TREES1_COLL"));
-            gameObjects.Add(GameObject.Find("TREES2_COLL"));
-            gameObjects.Add(GameObject.Find("TREES3_COLL"));
+            gameObjects.Add(new Objects(GameObject.Find("BOAT"))); //Boat is not a Car, oddly enough.
+            gameObjects.Add(new Objects(GameObject.Find("COTTAGE")));
+            gameObjects.Add(new Objects(GameObject.Find("DANCEHALL")));
+            gameObjects.Add(new Objects(GameObject.Find("INSPECTION")));
+            gameObjects.Add(new Objects(GameObject.Find("LANDFILL")));
+            gameObjects.Add(new Objects(GameObject.Find("PERAJARVI")));
+            gameObjects.Add(new Objects(GameObject.Find("RYKIPOHJA")));
+            gameObjects.Add(new Objects(GameObject.Find("SOCCER")));
+            gameObjects.Add(new Objects(GameObject.Find("WATERFACILITY")));
+            gameObjects.Add(new Objects(GameObject.Find("TREES1_COLL")));
+            gameObjects.Add(new Objects(GameObject.Find("TREES2_COLL")));
+            gameObjects.Add(new Objects(GameObject.Find("TREES3_COLL")));
 
             // Initialize Store class
             STORE = new Store();
             REPAIRSHOP = new RepairShop();
+            gameObjects.Add(new Objects(GameObject.Find("DRAGRACE"), 1100));
 
-            DRAGRACE = GameObject.Find("DRAGRACE");
+            Transform buildings = GameObject.Find("Buildings").transform;
 
             // Find house of Teimo and detach it from Perajarvi, so it can be loaded and unloaded separately
             // It shouldn't cause any issues, but that needs testing.
             GameObject perajarvi = GameObject.Find("PERAJARVI");
-            GameObject TEIMO_HOUSE = perajarvi.transform.Find("HouseRintama4").gameObject;
-            TEIMO_HOUSE.transform.parent = null;
+            perajarvi.transform.Find("HouseRintama4").parent = buildings;
             // Same for chicken house
-            GameObject CHICKEN_HOUSE = perajarvi.transform.Find("ChickenHouse").gameObject;
-            CHICKEN_HOUSE.transform.parent = null;
-
-            // Now that Teimo's house and chicken house is separated from Perajarvi, we can manage them separately. We're throwing them to gameObjects.
-            // Fixes the bug with both dissapearing when leaving Perajarvi, even tho logically they should still load when approached.
-            gameObjects.Add(TEIMO_HOUSE);
-            gameObjects.Add(CHICKEN_HOUSE);
+            perajarvi.transform.Find("ChickenHouse").parent = buildings;
 
             // Chicken house (barn) close to player's house
             Transform playerChickenHouse = GameObject.Find("Buildings").transform.Find("ChickenHouse");
             playerChickenHouse.parent = null;
-            gameObjects.Add(playerChickenHouse.gameObject);
 
-            // Fix for church wall. Changing it's parent to CHURCH, so it will loaded with all Perajarvi
-            //GameObject.Find("CHURCHWALL").transform.parent = GameObject.Find("CHURCH").transform;
+            // Fix for church wall. Changing it's parent ot NULL, so it will not be loaded or unloaded.
+            // It used to be changed to CHURCH gameobject, 
+            // but the Amis cars (yellow and grey cars) used to end up in the graveyard area.
             GameObject.Find("CHURCHWALL").transform.parent = null;
 
             // Fix for old house on the way from Perajarvi to Ventti's house (HouseOld5)
-            Transform houseOld5 = perajarvi.transform.Find("HouseOld5");
-            houseOld5.parent = null;
-            gameObjects.Add(houseOld5.gameObject);
+            perajarvi.transform.Find("HouseOld5").parent = buildings;
 
-            // Perajarvi fixes for multiple objects with the same name
+            // Perajarvi fixes for multiple objects with the same name.
+            // Instead of being the part of Perajarvi, we're changing it to be the part of Buildings.
             foreach (Transform trans in perajarvi.GetComponentsInChildren<Transform>())
             {
                 // Fix for disappearing grain processing plant
                 // https://my-summer-car.fandom.com/wiki/Grain_processing_plant
-                // It also puts them to farGameObjects - objects that are larger and need to be rendered from further distance
                 if (trans.gameObject.name.Contains("silo"))
                 {
-                    trans.parent = null;
-                    farGameObjects.Add(trans.gameObject);
+                    trans.parent = buildings;
                     continue;
                 }
 
                 // Fix for Ventti's and Teimo's mailboxes (and pretty much all mailboxes that are inside of Perajarvi)
                 if (trans.gameObject.name == "MailBox")
                 {
-                    trans.parent = null;
-                    gameObjects.Add(trans.gameObject);
+                    trans.parent = buildings;
                     continue;
                 }
 
                 // Fix for greenhouses on the road from Perajarvi to Ventti's house
                 if (trans.name == "Greenhouse")
                 {
-                    trans.parent = null;
-                    gameObjects.Add(trans.gameObject);
+                    trans.parent = buildings;
                     continue;
                 }
             }
@@ -146,20 +130,23 @@ namespace KruFPS
             // Needs testing
             foreach (Transform trans in GameObject.Find("KILJUGUY").transform.GetComponentsInChildren<Transform>())
             {
-                gameObjects.Add(trans.gameObject);
+                gameObjects.Add(new Objects(trans.gameObject));
             }
+
+            // Removes the mansion from the Buildings, so the tires will not land under the mansion.
+            GameObject.Find("autiotalo").transform.parent = null;
 
             ModConsole.Print("GameObjects Done");
 
             //Things that should be enabled when out of proximity of the house
-            awayFromHouse = new List<GameObject>();
-            awayFromHouse.Add(GameObject.Find("NPC_CARS"));
-            awayFromHouse.Add(GameObject.Find("RALLY"));
-            awayFromHouse.Add(GameObject.Find("TRAFFIC"));
-            awayFromHouse.Add(GameObject.Find("TRAIN"));
-            awayFromHouse.Add(GameObject.Find("Buildings"));
-            awayFromHouse.Add(GameObject.Find("TrafficSigns"));
-            awayFromHouse.Add(GameObject.Find("ELEC_POLES"));
+            gameObjects.Add(new Objects(GameObject.Find("NPC_CARS"), awayFromHouse: true));
+            gameObjects.Add(new Objects(GameObject.Find("RALLY"), awayFromHouse: true));
+            gameObjects.Add(new Objects(GameObject.Find("TRAFFIC"), awayFromHouse: true));
+            gameObjects.Add(new Objects(GameObject.Find("TRAIN"), awayFromHouse: true));
+            gameObjects.Add(new Objects(GameObject.Find("Buildings"), awayFromHouse: true));
+            gameObjects.Add(new Objects(GameObject.Find("TrafficSigns"), awayFromHouse: true));
+            gameObjects.Add(new Objects(GameObject.Find("ELEC_POLES"), awayFromHouse: true));
+            gameObjects.Add(new Objects(GameObject.Find("StreetLights"), awayFromHouse: true));
 
             //TODO: Solve Bugs from Unloading/Reloading Satsuma
             // Bugs: 
@@ -179,20 +166,23 @@ namespace KruFPS
             YARD = GameObject.Find("YARD");                     //Used to find out how far the player is from the Object
             KINEMATIC = SATSUMA.Object.GetComponent<Rigidbody>();
 
+            // Initialize MinorObjects
             new MinorObjects();
 
             ModConsole.Print("[KruFPS] Found all objects");
             DrawDistance = float.Parse(RenderDistance.GetValue().ToString()); //Update saved draw distance variable
             HookAllSavePoints(); //Hook all save points (it's before first pass of Update)
-        }
 
+            //Camera.main.gameObject.AddComponent<CameraHook>();
+        }
 
         public static void UpdateDrawDistance()
         {
             DrawDistance = (float)RenderDistance.GetValue();
         }
+
         Settings Satsuma = new Settings("Satsuma", "Satsuma (only parts disabled)", false);
-        static Settings RenderDistance = new Settings("slider", "Render Distance", 420, UpdateDrawDistance);
+        static Settings RenderDistance = new Settings("slider", "Render Distance", 3000, UpdateDrawDistance);
         Settings ferndale = new Settings("ferndale", "Ferndale", false);
         Settings flatbed = new Settings("flatbed", "Flatbed", false);
         Settings gifu = new Settings("gifu", "Gifu", false);
@@ -203,8 +193,9 @@ namespace KruFPS
         Settings cabin = new Settings("cabin", "Unload the Cabin", false);
         Settings teimoshop = new Settings("teimoshop", "Teimo's Shop", false);
         Settings fleetarirepairshop = new Settings("fleetarirepairshop", "Fleetari Repair Shop", false);
-        Settings dragstrip = new Settings("dragstrip", "Dragstrip", false);
         Settings minorobjects = new Settings("minorObjects", "Minor objects (ex. beer cases, sausages...)", false);
+        public static Settings FogDensity = new Settings("fogDensity", "Fog density", 100, UpdateDrawDistance);
+
         public override void ModSettings()
         {
             // All settings should be created here. 
@@ -223,12 +214,12 @@ namespace KruFPS
             Settings.AddCheckBox(this, minorobjects);
             Settings.AddCheckBox(this, teimoshop);
             Settings.AddCheckBox(this, fleetarirepairshop);
-            Settings.AddCheckBox(this, dragstrip);
             Settings.AddText(this, "Check this if you're not using the cabin.");
             Settings.AddCheckBox(this, cabin);
             Settings.AddHeader(this, "Graphics settings", Color.green);
             Settings.AddText(this, "Turn this down if you have a weak GPU.");
             Settings.AddSlider(this, RenderDistance, 1, 6000);
+            //Settings.AddSlider(this, FogDensity, 0, 100);
 
         }
         private void HookAllSavePoints()
@@ -256,13 +247,9 @@ namespace KruFPS
             //Prepare everything here for SAVEGAME event
             try
             {
-                foreach (GameObject item in awayFromHouse)
+                foreach (Objects item in gameObjects)
                 {
-                    EnableDisable(item, true); //ENABLE
-                }
-                foreach (GameObject item in gameObjects)
-                {
-                    EnableDisable(item, true); //ENABLE
+                    item.EnableDisable(true); //ENABLE
                 }
                 FERNDALE.EnableDisable(true);
                 FLATBED.EnableDisable(true);
@@ -275,9 +262,9 @@ namespace KruFPS
                 KINEMATIC.isKinematic = false;
                 AXLES.enabled = true;
                 CAR_DYNAMICS.enabled = true;
-                foreach (GameObject item in MinorObjects.instance.minorObjects)
+                foreach (ObjectHook item in MinorObjects.instance.ObjectHooks)
                 {
-                    EnableDisable(item, true);
+                    EnableDisable(item.gm, true);
                 }
 
                 STORE.EnableDisable(true);
@@ -292,10 +279,6 @@ namespace KruFPS
             Debug.Log("[KruFPS] Prepare for save finished!");
         }
 
-        public override void OnGUI()
-        {
-            // Draw unity OnGUI() here
-        }
         float timer = 0.0f;
         public override void Update()
         {
@@ -307,18 +290,21 @@ namespace KruFPS
             //if we are here, one second passed so reset timer and do rest of the code.
             timer = 0f;
 
-
             Camera.main.farClipPlane = DrawDistance;
 
+            // Go through the list gameObjects list
             for (int i = 0; i < gameObjects.Count; i++)
             {
-                EnableDisable(gameObjects[i], ShouldEnable(PLAYER.transform, gameObjects[i].transform));
-            }
-
-            // Objects that are larger and need to enabled earlier
-            for (int i = 0; i < farGameObjects.Count; i++)
-            {
-                EnableDisable(farGameObjects[i], ShouldEnable(PLAYER.transform, farGameObjects[i].transform, 400));
+                if (gameObjects[i].AwayFromHouse)
+                {
+                    // Should the object be disabled when the player leaves the house?
+                    gameObjects[i].EnableDisable(Distance(PLAYER.transform, YARD.transform) > 100);
+                }
+                else
+                {
+                    // The object will be disables, if the player is in the range of that object.
+                    gameObjects[i].EnableDisable(ShouldEnable(PLAYER.transform, gameObjects[i].transform, gameObjects[i].Distance));
+                }
             }
 
             //CARS
@@ -373,9 +359,10 @@ namespace KruFPS
             }
             if ((bool)minorobjects.GetValue() == true)
             {
-                for (int i = 0; i < MinorObjects.instance.minorObjects.Count; i++)
+                for (int i = 0; i < MinorObjects.instance.ObjectHooks.Count; i++)
                 {
-                    EnableDisable(MinorObjects.instance.minorObjects[i], ShouldEnable(PLAYER.transform, MinorObjects.instance.minorObjects[i].transform));
+                    MinorObjects.instance.ObjectHooks[i].EnableDisable(
+                        ShouldEnable(PLAYER.transform, MinorObjects.instance.ObjectHooks[i].gm.transform));
                 }
             }
             if ((bool)teimoshop.GetValue() == true)
@@ -386,43 +373,22 @@ namespace KruFPS
             {
                 REPAIRSHOP.EnableDisable(ShouldEnable(PLAYER.transform, REPAIRSHOP.transform));
             }
-            if ((bool)dragstrip.GetValue() == true)
-            {
-                // Large distance ammount for Dragstrip, to let the script run, even on the second end of drag strip
-                EnableDisable(DRAGRACE, ShouldEnable(PLAYER.transform, DRAGRACE.transform, 1100));
-            }
-
-            //Away from house
-            if (Distance(PLAYER.transform, YARD.transform) > 100)
-            {
-                for (int i = 0; i < awayFromHouse.Count; i++)
-                {
-                    EnableDisable(awayFromHouse[i], true);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < awayFromHouse.Count; i++)
-                {
-                    EnableDisable(awayFromHouse[i], false);
-                }
-            }
         }
 
         private bool ShouldEnable(Transform player, Transform target, int distanceTarget = 200)
         {
-
             //This determines if somthing should be enabled or not - Returning FALSE means that the object should be Disabled, and inversely
             // if it returns TRUE the object should be Enabled.
-
             float distance = Vector3.Distance(player.position, target.position);
             return distance < distanceTarget;
         }
+
         private float Distance(Transform player, Transform target)
         {
             //Gets Distance.
             return Vector3.Distance(player.position, target.position);
         }
+
         private void EnableDisable(GameObject thing, bool enabled)
         {
             if (thing != null && thing.activeSelf != enabled)
@@ -430,3 +396,4 @@ namespace KruFPS
         }
     }
 }
+
