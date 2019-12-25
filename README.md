@@ -1,5 +1,9 @@
 # KruFPS
 
+## Notice: While KruFPS works well, it does have many bugs. I would suggest trying out MOP - https://github.com/Athlon007/MOP
+
+
+
 A mod that drastically improves FPS in My Summer Car
 
 On my PC
